@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fomento Paraná — Pré-Propostas</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --azul: #003366; --azul-medio: #004080; --dourado: #F5C400; --dourado-escuro: #c49a00;
+    --bg: #f0f2f5; --bg-card: #ffffff; --border: #d0d5dd;
+    --text: #1a1a2e; --text-muted: #6b7280;
+    --success: #166534; --success-bg: #dcfce7;
+    --danger: #991b1b; --danger-bg: #fee2e2;
+    --warn: #92400e; --warn-bg: #fef3c7;
+    --info: #1E40AF; --info-bg: #EFF6FF;
+    --radius: 10px;
+  }
+  * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  /* ══ CABEÇALHO ══ */
+  header { background: linear-gradient(135deg, var(--azul), var(--azul-medio)); color: #fff; padding: 14px 28px; display: flex; align-items: center; gap: 14px; }
+  .logo-box { width: 42px; height: 42px; background: var(--dourado); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--azul); font-size: 15px; }
+  .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+  .logo-text p { font-size: 11.5px; opacity: .8; }
+  .header-badge { margin-left: auto; background: var(--dourado); color: var(--azul); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+
+  nav { background: var(--azul-medio); padding: 0 28px; display: flex; gap: 4px; }
+  .nav-tab { padding: 12px 20px; color: rgba(255,255,255,.75); font-size: 13.5px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all .15s; }
+  .nav-tab:hover { color: #fff; }
+  .nav-tab.active { color: var(--dourado); border-bottom-color: var(--dourado); font-weight: 600; }
+
+  main { max-width: 1500px; margin: 0 auto; padding: 22px 28px 60px; }
+
+  /* ══ CARDS ══ */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--azul); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  /* ══ BOTÕES ══ */
+  .btn { padding: 9px 18px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .13s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--azul); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--azul-medio); }
+  .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+  .btn-secondary { background: #fff; color: var(--azul); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--azul); }
+  .btn-sm { padding: 6px 13px; font-size: 12px; }
+
+  /* ══ UPLOAD ══ */
+  .input-file-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all .15s; background: #fafbfc; }
+  .input-file-area:hover, .input-file-area.over { border-color: var(--azul); background: var(--info-bg); }
+  .input-file-area.ok { border-color: var(--success); background: #f0fdf4; border-style: solid; }
+  .input-file-area input { display: none; }
+  .file-icon { font-size: 30px; margin-bottom: 8px; }
+  .file-label-main { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .file-label-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .file-name { margin-top: 10px; font-size: 12.5px; font-weight: 600; color: var(--success); }
+
+  .preview-box { margin-top: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; }
+  .preview-box.erro { background: var(--danger-bg); border-color: #fca5a5; color: var(--danger); }
+  .preview-linha { margin-bottom: 5px; }
+  .preview-linha:last-child { margin-bottom: 0; }
+  .preview-cols { margin-top: 7px; padding-top: 7px; border-top: 1px dashed var(--border); font-size: 11.5px; color: var(--text-muted); }
+
+  /* ══ ALERTAS ══ */
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
+  .alert-info    { background: var(--info-bg);    color: var(--info);    border: 1px solid #bfdbfe; }
+  .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #86efac; }
+  .alert-danger  { background: var(--danger-bg);  color: var(--danger);  border: 1px solid #fca5a5; }
+  .alert-warning { background: var(--warn-bg);    color: var(--warn);    border: 1px solid #fcd34d; }
+
+  /* ══ PROGRESSO ══ */
+  .progress-wrap { margin: 14px 0; }
+  .progress-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+  .progress-bar { height: 7px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--azul); border-radius: 4px; transition: width .3s; width: 0%; }
+
+  /* ══ FILTROS ══ */
+  .filtros-pessoas { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .filtro-btn { padding: 7px 16px; border: 1.5px solid var(--border); background: #fff; border-radius: 20px; font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all .13s; }
+  .filtro-btn:hover { transform: translateY(-1px); }
+  .filtro-btn.active { box-shadow: 0 0 0 3px rgba(0,51,102,.18); }
+
+  .filtros-linha { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .search-input { flex: 1; min-width: 220px; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; }
+  .search-input:focus { outline: none; border-color: var(--azul); }
+
+  .filtros-avancados { display: none; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+  .filtros-avancados.aberto { display: block; }
+  .fa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end; }
+  .fa-campo label { display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 5px; }
+  .fa-input { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 12.5px; background: #fff; }
+  .fa-input:focus { outline: none; border-color: var(--azul); }
+  .fa-inputs { display: flex; align-items: center; gap: 6px; }
+  .fa-sep { font-size: 11px; color: #94a3b8; }
+  .fa-acoes { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  #fa-badge { background: var(--dourado); color: var(--azul); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; margin-left: 4px; }
+
+  /* ══ TABELA ══ */
+  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: auto; max-height: 640px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { position: sticky; top: 0; background: #f8fafc; z-index: 5; padding: 11px 12px; text-align: left; font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid var(--border); cursor: pointer; white-space: nowrap; }
+  thead th:hover { background: #eef2f6; }
+  thead th.sorted { color: var(--azul); }
+  .sort-icon { opacity: .4; font-size: 10px; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid #eef1f4; font-size: 13px; vertical-align: middle; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr.sel { background: var(--info-bg); }
+  .td-codigo { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+  .td-valor { font-family: 'IBM Plex Mono', monospace; text-align: right; white-space: nowrap; }
+
+  .resp-cell { display: flex; align-items: center; gap: 8px; }
+  .resp-tarja { width: 4px; height: 30px; border-radius: 2px; flex-shrink: 0; }
+  .resp-avatar { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .resp-nome { font-size: 12.5px; font-weight: 600; }
+  .btn-trocar { background: none; border: none; cursor: pointer; opacity: .35; font-size: 12px; padding: 2px 5px; }
+  .btn-trocar:hover { opacity: 1; }
+  .dd-trigger { border: 1.5px dashed var(--border); border-radius: 7px; padding: 5px 11px; font-size: 12px; color: var(--azul); cursor: pointer; font-weight: 600; }
+  .dd-trigger:hover { border-color: var(--azul); background: var(--info-bg); }
+
+  .badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; border: 1px solid transparent; display: inline-block; }
+  .badge-motivo { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 6px; background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .alerta-dias { display: inline-flex; align-items: center; gap: 4px; }
+  .dias-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--danger-bg); color: var(--danger); }
+  .dias-ok { font-size: 10.5px; color: #9ca3af; }
+
+  .obs-btn { background: #fff; border: 1.5px solid var(--border); border-radius: 7px; padding: 5px 11px; font-size: 12px; cursor: pointer; font-family: inherit; color: var(--azul); font-weight: 600; max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+  .obs-btn:hover { border-color: var(--azul); }
+  .obs-btn.vazio { color: #9ca3af; font-weight: 500; }
+  .obs-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-right: 5px; }
+
+  /* ══ PAGINAÇÃO ══ */
+  .pag-wrap { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; flex-wrap: wrap; gap: 10px; }
+  .pag-info { font-size: 12.5px; color: var(--text-muted); }
+  .pag-ctrls { display: flex; align-items: center; gap: 6px; }
+  .pag-btn { padding: 6px 12px; border: 1.5px solid var(--border); background: #fff; border-radius: 7px; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+  .pag-btn:hover:not(:disabled) { border-color: var(--azul); }
+  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* ══ INDICADORES ══ */
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 13px; }
+  .dash-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px 17px; position: relative; }
+  .dash-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent, var(--azul)); border-radius: 12px 0 0 12px; }
+  .dash-label { font-size: 10.5px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; display: flex; align-items: center; }
+  .dash-value { font-size: 25px; font-weight: 700; color: var(--text); line-height: 1.1; }
+  .dash-sub { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+  .accent-azul     { --accent: #003366; }
+  .accent-verde    { --accent: #16a34a; }
+  .accent-dourado  { --accent: #ca8a04; }
+  .accent-roxo     { --accent: #7c3aed; }
+  .accent-laranja  { --accent: #ea580c; background: #fff7ed; }
+  .accent-cinza    { --accent: #64748b; }
+
+  .painel-secao { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .painel-secao-titulo { font-size: 14px; font-weight: 700; color: var(--azul); margin-bottom: 4px; display: flex; align-items: center; }
+  .painel-secao-sub { font-size: 11.5px; color: var(--text-muted); margin-bottom: 14px; }
+  .painel-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .painel-filtros .fa-input { max-width: 220px; }
+  .painel-vazio { text-align: center; padding: 28px; color: var(--text-muted); font-size: 13px; }
+
+  /* Barras horizontais */
+  .barra-linha { display: flex; align-items: center; gap: 11px; padding: 6px 0; }
+  .barra-nome { flex: 0 0 190px; font-size: 12px; font-weight: 500; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barra-qtd { color: #64748b; font-weight: 400; }
+  .barra-track { flex: 1; height: 7px; background: #f1f5f9; border-radius: 4px; overflow: hidden; min-width: 30px; }
+  .barra-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+  .barra-pct { flex: 0 0 60px; text-align: right; font-size: 11px; font-weight: 600; color: #64748b; }
+  .barra-valor { flex: 0 0 120px; text-align: right; font-size: 11.5px; font-family: 'IBM Plex Mono', monospace; color: var(--text-muted); }
+
+  .carga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .carga-card { display: flex; gap: 11px; align-items: flex-start; border: 1px solid var(--border); border-left: 4px solid var(--cor-colab, var(--azul)); border-radius: 10px; padding: 12px 14px; }
+  .carga-nome { font-size: 12.5px; font-weight: 700; margin-bottom: 3px; }
+  .carga-nums { font-size: 11.5px; color: var(--text-muted); display: flex; gap: 8px; }
+  .carga-valor { font-size: 11.5px; font-family: 'IBM Plex Mono', monospace; color: #475569; margin-top: 2px; }
+
+  /* ══ MODAIS ══ */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: flex; align-items: center; justify-content: center; z-index: 9000; padding: 20px; }
+  .modal-box { background: #fff; border-radius: 14px; padding: 24px; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--azul); margin-bottom: 4px; }
+  .modal-info { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; font-family: 'IBM Plex Mono', monospace; }
+  .modal-box label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 5px; }
+  .modal-box textarea { width: 100%; padding: 11px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; resize: vertical; }
+  .modal-box textarea:focus { outline: none; border-color: var(--azul); }
+  .modal-acoes { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+
+  .mr-busca { width: 100%; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 12px; }
+  .mr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .mr-opt { display: flex; align-items: center; gap: 8px; padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: all .12s; }
+  .mr-opt:hover { border-color: var(--azul); background: var(--info-bg); }
+  .mr-opt.atual { border-color: var(--azul); background: var(--info-bg); }
+  .mr-opt-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; flex-shrink: 0; }
+  .mr-opt-nome { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mr-opt-remover { border-style: dashed !important; }
+
+  .obs-hist { max-height: 170px; overflow-y: auto; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 4px; margin-bottom: 14px; }
+  .obs-hist-item { padding: 8px 11px; border-bottom: 1px dashed var(--border); font-size: 12px; line-height: 1.45; }
+  .obs-hist-item:last-child { border-bottom: none; }
+  .obs-hist-data { font-size: 10.5px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px; }
+  .obs-hist-vazio { display: block; padding: 12px; font-size: 12px; color: #94a3b8; text-align: center; }
+
+  /* ══ TOOLTIP ══ */
+  .ajuda { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; min-width: 15px; border-radius: 50%; background: rgba(100,116,139,.2); color: #64748b; font-size: 10px; font-weight: 700; cursor: help; margin-left: 5px; vertical-align: middle; flex-shrink: 0; line-height: 1; }
+  .ajuda:hover { background: var(--azul); color: #fff; }
+  .ajuda::after { content: attr(data-ajuda); position: absolute; bottom: calc(100% + 9px); left: 50%; margin-left: -125px; width: 250px; background: #1e293b; color: #f1f5f9; font-size: 11.5px; font-weight: 400; line-height: 1.5; padding: 9px 12px; border-radius: 8px; text-align: left; white-space: normal; box-shadow: 0 6px 20px rgba(0,0,0,.3); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .14s; z-index: 9500; }
+  .ajuda:hover::after { opacity: 1; visibility: visible; }
+  .ajuda.ajuda-baixo::after { bottom: auto; top: calc(100% + 9px); }
+  .ajuda.ajuda-dir::after { left: 0; margin-left: -8px; }
+  .ajuda.ajuda-esq::after { left: auto; right: 0; margin-left: 0; margin-right: -8px; }
+
+  /* ══ TOAST ══ */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--azul); color: #fff; padding: 13px 20px; border-radius: 9px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s; pointer-events: none; z-index: 9999; }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.erro { background: var(--danger); }
+
+  .empty { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 38px; margin-bottom: 10px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .stat-card { border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; }
+  .stat-label { font-size: 10.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+  .stat-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .stat-sub { font-size: 10.5px; color: #9ca3af; }
+
+  .lote-bar { display: none; background: var(--info-bg); border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; align-items: center; gap: 12px; }
+  .lote-bar.ativo { display: flex; }
+  .lote-txt { font-size: 12.5px; font-weight: 600; color: var(--info); }
+
+  @media (max-width: 720px) {
+    main { padding: 16px 14px 40px; }
+    header { padding: 12px 16px; }
+    nav { padding: 0 10px; overflow-x: auto; }
+    .barra-nome { flex-basis: 120px; }
+    .barra-valor { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-box">PR</div>
+  <div class="logo-text">
+    <h1>FOMENTO PARANÁ — Pré-Propostas</h1>
+    <p>Acompanhamento de pré-propostas com preenchimento incompleto</p>
+  </div>
+  <span class="header-badge">PP v1.0</span>
+</header>
+
+<nav>
+  <div class="nav-tab active" id="tab-enviar"  onclick="setTab('enviar')">📤 Enviar Planilha</div>
+  <div class="nav-tab"        id="tab-lista"   onclick="setTab('lista')">📋 Pré-Propostas</div>
+  <div class="nav-tab"        id="tab-painel"  onclick="setTab('painel')">📊 Painel</div>
+  <div class="nav-tab"        id="tab-envios"  onclick="setTab('envios')">🕒 Envios</div>
+</nav>
+
+<main id="main-content">
+  <div id="view-enviar"></div>
+  <div id="view-lista"  style="display:none"></div>
+  <div id="view-painel" style="display:none"></div>
+  <div id="view-envios" style="display:none"></div>
+</main>
+
+<!-- MODAL COMENTÁRIO -->
+<div class="modal-overlay" id="modal-obs" style="display:none" onclick="fecharModalObs(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Comentário</div>
+    <div class="modal-info" id="modal-obs-info"></div>
+    <label>Histórico de comentários</label>
+    <div class="obs-hist" id="modal-obs-hist"><span class="obs-hist-vazio">—</span></div>
+    <label>Comentário atual</label>
+    <textarea id="modal-obs-texto" rows="4" placeholder="Escreva o comentário..."></textarea>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px">
+      O comentário é fixo: o envio de planilha nunca sobrescreve. Só muda quando você editar aqui.
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-secondary" onclick="fecharModalObs()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-obs" onclick="salvarObservacao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESPONSÁVEL -->
+<div class="modal-overlay" id="modal-resp" style="display:none" onclick="fecharModalResp(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="mr-titulo">Atribuir responsável</div>
+    <div class="modal-info" id="mr-sub"></div>
+    <input type="text" class="mr-busca" id="mr-busca" placeholder="🔍 Buscar..." oninput="filtrarGridResp(this.value)"/>
+    <div class="mr-grid" id="mr-grid"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// CONEXÃO
+// ============================================================
+const SUPABASE_URL = 'https://tghfeqgqmubefggjwbhs.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnaGZlcWdxbXViZWZnZ2p3YmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNDM1NjgsImV4cCI6MjEwMjcxOTU2OH0.OEiBpzBWMVwIgvoPfT95nzeH1aNcobysxCR3m7fN3Gg'
+
+async function sb(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method: opts.method || 'GET',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || '',
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  })
+  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`)
+  const ct = res.headers.get('content-type') || ''
+  return (ct.includes('json') && res.status !== 204) ? res.json() : null
+}
+
+// Busca tudo, contornando o teto de 1000 linhas por resposta do Supabase
+async function sbAll(path, pageSize = 1000, maxPaginas = 100) {
+  const sep = path.includes('?') ? '&' : '?'
+  let todos = []
+  for (let p = 0; p < maxPaginas; p++) {
+    const lote = await sb(`${path}${sep}limit=${pageSize}&offset=${p * pageSize}`)
+    if (!lote || !lote.length) break
+    todos = todos.concat(lote)
+    if (lote.length < pageSize) break
+  }
+  return todos
+}
+
+// ============================================================
+// COLABORADORES
+// ============================================================
+const COLABORADORES = {
+  ANNA:     '#C9A0DC',
+  'CAUÃ':   '#F4A460',
+  CONRADO:  '#E88080',
+  JULIANO:  '#93C47D',
+  LETICIA:  '#EA9999',
+  MARCOS:   '#6FA8DC',
+  PEDRO:    '#9FC5E8',
+  RAIANE:   '#D5A6E6',
+  'N/A':    '#E0E0E0',
+}
+const COLAB_LIST = ['ANNA','CAUÃ','CONRADO','JULIANO','LETICIA','MARCOS','PEDRO','RAIANE']
+
+// A planilha pode trazer o nome completo ou com acentuação diferente.
+// Esta função reduz ao nome curto que o sistema usa.
+function normalizarResponsavel(txt) {
+  let t = (txt || '').toString().trim().toUpperCase()
+  if (!t || t === 'N/A' || t === '-') return 'N/A'
+  // tira acentos para comparar
+  const semAcento = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const alvo = semAcento(t)
+  for (const nome of COLAB_LIST) {
+    const curto = semAcento(nome)
+    // casa se o nome curto aparece como palavra inteira no texto
+    if (new RegExp(`(^|[^A-Z])${curto}([^A-Z]|$)`).test(alvo)) return nome
+  }
+  return t   // mantém o original se não reconhecer
+}
+
+function getCorColab(nome) { return COLABORADORES[normalizarResponsavel(nome)] || '#94A3B8' }
+function getTextColor(hex) {
+  const h = (hex || '#ccc').replace('#','')
+  const r = parseInt(h.substr(0,2),16), g = parseInt(h.substr(2,2),16), b = parseInt(h.substr(4,2),16)
+  return ((0.299*r + 0.587*g + 0.114*b) / 255) > 0.6 ? '#1a1a2e' : '#fff'
+}
+function getIniciais(nome) {
+  const n = (nome || 'N/A').trim()
+  if (n === 'N/A') return '—'
+  const p = n.split(/\s+/)
+  return p.length > 1 ? (p[0][0] + p[1][0]).toUpperCase() : n.substring(0,2).toUpperCase()
+}
+
+// ============================================================
+// COLUNAS DA PLANILHA
+// ============================================================
+const COLUNAS_UTEIS = [
+  { campo: 'codigo',                  label: 'Código da Pré-Proposta', nomes: ['CODIGO_PRE_PROPOSTA','CÓDIGO_PRE_PROPOSTA','CODIGO PRE PROPOSTA','CODIGO'], obrigatoria: true },
+  { campo: 'linha_credito',           label: 'Linha de Crédito',       nomes: ['LINHA_CREDITO','LINHA_CRÉDITO','LINHA DE CREDITO','LINHA DE CRÉDITO'], obrigatoria: false },
+  { campo: 'valor',                   label: 'Valor do Empréstimo',    nomes: ['VALOR_EMPRESTIMO','VALOR_EMPRÉSTIMO','VALOR EMPRESTIMO','VALOR'], obrigatoria: false },
+  { campo: 'data_ultima_comunicacao', label: 'Data Última Comunicação',nomes: ['DATA ULTIMA COMUNICACAO','DATA ÚLTIMA COMUNICAÇÃO','DATA_ULTIMA_COMUNICACAO'], obrigatoria: false },
+  { campo: 'responsavel',             label: 'Responsável',            nomes: ['RESPONSÁVEL','RESPONSAVEL'], obrigatoria: false },
+  { campo: 'municipio',               label: 'Município',              nomes: ['MUNICIPIO PROPONENTE','MUNICÍPIO PROPONENTE','MUNICIPIO','MUNICÍPIO'], obrigatoria: false },
+  { campo: 'motivo_devolucao',        label: 'Motivo Devolução',       nomes: ['MOTIVO DEVOLUÇÃO','MOTIVO DEVOLUCAO','MOTIVO_DEVOLUCAO'], obrigatoria: false },
+]
+// Estas nunca entram no sistema
+const COLUNAS_DESCARTADAS = ['CPF_CNPJ','NOME_CLIENTE','TIPO_PESSOA','CPF_USUARIO','EMAIL','DATA_ENVIO','DATA_CADASTRO','SITUACAO','TIPO GARANTIA','MOTIVO RECUSA']
+
+function acharCol(row, nomes) {
+  const chaves = Object.keys(row)
+  const norm = s => s.toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[_\s]+/g,' ')
+  for (const n of nomes) {
+    const alvo = norm(n)
+    const achou = chaves.find(k => norm(k) === alvo)
+    if (achou !== undefined) return row[achou]
+  }
+  return undefined
+}
+
+function parseValor(v) {
+  if (v === null || v === undefined || v === '') return 0
+  if (typeof v === 'number') return v
+  let s = String(v).replace(/[R$\s]/g, '')
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.')
+  const n = parseFloat(s)
+  return isNaN(n) ? 0 : n
+}
+
+function parseData(v) {
+  if (!v) return null
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v
+  const s = String(v).trim()
+  if (!s) return null
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)          // dd/mm/aaaa
+  if (m) return new Date(+m[3], +m[2]-1, +m[1])
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)                // aaaa-mm-dd
+  if (m) return new Date(+m[1], +m[2]-1, +m[3])
+  const d = new Date(s)
+  return isNaN(d.getTime()) ? null : d
+}
+
+function isoData(d) {
+  try { return d && !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null }
+  catch(e) { return null }
+}
+
+function formatValor(v) {
+  const n = typeof v === 'number' ? v : parseValor(v)
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+function formatData(v) {
+  if (!v) return '—'
+  const s = String(v).split('T')[0]
+  const p = s.split('-')
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : s
+}
+
+// Dias desde a última comunicação
+const DIAS_ALERTA = 30
+function diasDesde(v) {
+  if (!v) return null
+  const s = String(v).split('T')[0].split('-')
+  if (s.length !== 3) return null
+  const d = new Date(+s[0], +s[1]-1, +s[2])
+  const h = new Date(); h.setHours(0,0,0,0); d.setHours(0,0,0,0)
+  return Math.floor((h - d) / 86400000)
+}
+
+function showToast(msg, tipo) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className = 'show' + (tipo === 'error' ? ' erro' : '')
+  setTimeout(() => { t.className = '' }, 3200)
+}
+
+// ============================================================
+// ESTADO
+// ============================================================
+let todasPre = []
+let arquivoPre = null
+let linhasPre = []
+let ultimoEnvio = null
+
+let filtroColab = 'TODOS'
+let filtroBusca = ''
+let filtroLinha = '', filtroMunicipio = '', filtroMotivo = ''
+let filtroValorMin = '', filtroValorMax = ''
+let filtroComIni = '', filtroComFim = ''
+let filtroSemComentario = false
+let filtroSemResponsavel = false
+
+let sortCol = 'codigo', sortDir = 1
+let pagAtual = 1, pagTamanho = 50
+let selecionadas = new Set()
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+function setTab(tab) {
+  ['enviar','lista','painel','envios'].forEach(t => {
+    document.getElementById('view-' + t).style.display = t === tab ? '' : 'none'
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab)
+  })
+  if (tab === 'lista')  carregarPre()
+  if (tab === 'painel') renderPainel()
+  if (tab === 'envios') carregarEnvios()
+}
+
+// ============================================================
+// ABA: ENVIAR PLANILHA
+// ============================================================
+function renderEnviar() {
+  document.getElementById('view-enviar').innerHTML = `
+  <div class="card">
+    <div class="card-title">
+      📤 Envio da Planilha
+      <span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Envie a planilha PrePropostasHabilitadas. As colunas com dados pessoais sao descartadas na leitura e nunca chegam ao banco. Os comentarios ja escritos nunca sao sobrescritos.">?</span>
+    </div>
+    <div id="aviso-periodicidade"></div>
+    <div class="input-file-area" id="drop-pre" onclick="document.getElementById('file-pre').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="handleDropPre(event)">
+      <input type="file" id="file-pre" accept=".xlsx,.xls,.csv" onchange="handleFilePre(event)"/>
+      <div class="file-icon">📄</div>
+      <div class="file-label-main">Clique ou arraste a planilha</div>
+      <div class="file-label-sub">PrePropostasHabilitadas · .xlsx, .xls ou .csv</div>
+      <div class="file-name" id="nome-pre"></div>
+    </div>
+    <div id="preview-pre"></div>
+    <div id="status-pre" class="alert alert-info" style="margin-top:14px">Nenhuma planilha selecionada.</div>
+    <div class="progress-wrap" id="prog-wrap" style="display:none">
+      <div class="progress-label" id="prog-label"></div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    </div>
+    <button class="btn btn-primary" id="btn-enviar" disabled onclick="enviarPlanilha()" style="margin-top:14px">
+      ⚡ Processar Planilha
+    </button>
+  </div>
+
+  <div class="card" id="card-resultado" style="display:none">
+    <div class="card-title">✅ Resultado</div>
+    <div id="resultado-content"></div>
+  </div>`
+  verificarPeriodicidade()
+}
+
+// Lembra o usuário quando faz mais de uma semana desde o último envio
+async function verificarPeriodicidade() {
+  const el = document.getElementById('aviso-periodicidade')
+  if (!el) return
+  try {
+    const env = await sb('prepropostas_envios?select=criado_em&order=criado_em.desc&limit=1')
+    if (!env || !env.length) {
+      el.innerHTML = `<div class="alert alert-info" style="margin-bottom:14px">👋 Primeiro envio. Depois disso, o recomendado é atualizar uma vez por semana.</div>`
+      return
+    }
+    ultimoEnvio = env[0].criado_em
+    const dias = diasDesde(String(ultimoEnvio).split('T')[0])
+    if (dias === null) return
+    if (dias >= 7) {
+      el.innerHTML = `<div class="alert alert-warning" style="margin-bottom:14px">⏰ O último envio foi há <b>${dias} dias</b> (${formatData(ultimoEnvio)}). O recomendado é atualizar uma vez por semana.</div>`
+    } else {
+      el.innerHTML = `<div class="alert alert-success" style="margin-bottom:14px">✅ Último envio há ${dias === 0 ? 'menos de um dia' : dias + (dias === 1 ? ' dia' : ' dias')} (${formatData(ultimoEnvio)}). Em dia.</div>`
+    }
+  } catch(e) { el.innerHTML = '' }
+}
+
+function handleDropPre(e) {
+  e.preventDefault(); e.currentTarget.classList.remove('over')
+  const f = e.dataTransfer.files[0]
+  if (f) lerArquivoPre(f)
+}
+function handleFilePre(e) {
+  const f = e.target.files[0]
+  if (f) lerArquivoPre(f)
+}
+
+function lerPlanilha(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = ev => {
+      try {
+        const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array', cellDates: true, codepage: 65001 })
+        const ws = wb.Sheets[wb.SheetNames[0]]
+        resolve(XLSX.utils.sheet_to_json(ws, { defval: '', raw: false }))
+      } catch(err) { reject(err) }
+    }
+    r.onerror = () => reject(new Error('Falha ao ler o arquivo'))
+    r.readAsArrayBuffer(file)
+  })
+}
+
+async function lerArquivoPre(file) {
+  arquivoPre = file
+  linhasPre = []
+  const prev = document.getElementById('preview-pre')
+  const status = document.getElementById('status-pre')
+  const btn = document.getElementById('btn-enviar')
+  const drop = document.getElementById('drop-pre')
+  btn.disabled = true
+  document.getElementById('nome-pre').textContent = '✓ ' + file.name
+  prev.innerHTML = '<div class="preview-box">⏳ Lendo planilha...</div>'
+
+  try {
+    const rows = await lerPlanilha(file)
+    if (!rows.length) throw new Error('A planilha está vazia')
+
+    const cabecalhos = Object.keys(rows[0])
+    const encontradas = [], faltando = []
+    COLUNAS_UTEIS.forEach(cl => {
+      const tem = acharCol(rows[0], cl.nomes) !== undefined
+      if (tem) encontradas.push(cl.label)
+      else if (cl.obrigatoria) faltando.push(cl.label)
+    })
+
+    if (faltando.length) {
+      drop.classList.remove('ok')
+      prev.innerHTML = `<div class="preview-box erro">❌ Faltam colunas obrigatórias: <b>${faltando.join(', ')}</b></div>`
+      status.className = 'alert alert-danger'
+      status.textContent = 'Corrija a planilha e envie novamente.'
+      return
+    }
+
+    // Transforma, descartando tudo que é dado pessoal
+    linhasPre = rows.map(row => ({
+      codigo:                 String(acharCol(row, COLUNAS_UTEIS[0].nomes) ?? '').trim(),
+      linha_credito:          String(acharCol(row, COLUNAS_UTEIS[1].nomes) ?? '').trim(),
+      valor:                  parseValor(acharCol(row, COLUNAS_UTEIS[2].nomes)),
+      data_ultima_comunicacao: isoData(parseData(acharCol(row, COLUNAS_UTEIS[3].nomes))),
+      responsavel:            normalizarResponsavel(acharCol(row, COLUNAS_UTEIS[4].nomes)),
+      municipio:              String(acharCol(row, COLUNAS_UTEIS[5].nomes) ?? '').trim(),
+      motivo_devolucao:       String(acharCol(row, COLUNAS_UTEIS[6].nomes) ?? '').trim(),
+    })).filter(r => r.codigo)
+
+    // Código repetido dentro da própria planilha: fica o último
+    const mapa = {}
+    linhasPre.forEach(r => { mapa[r.codigo] = r })
+    const repetidos = linhasPre.length - Object.keys(mapa).length
+    linhasPre = Object.values(mapa)
+
+    const pessoais = COLUNAS_DESCARTADAS.filter(d =>
+      cabecalhos.some(k => k.toString().trim().toUpperCase().replace(/[_\s]+/g,' ') === d.replace(/[_\s]+/g,' ')))
+    const semResp = linhasPre.filter(r => r.responsavel === 'N/A').length
+    const porResp = {}
+    linhasPre.forEach(r => { porResp[r.responsavel] = (porResp[r.responsavel]||0)+1 })
+
+    drop.classList.add('ok')
+    prev.innerHTML = `<div class="preview-box">
+      <div class="preview-linha">✅ <b>${linhasPre.length}</b> pré-propostas · <b>${cabecalhos.length}</b> colunas na planilha</div>
+      ${repetidos ? `<div class="preview-linha">🔁 ${repetidos} código${repetidos>1?'s':''} repetido${repetidos>1?'s':''} — mantida a última ocorrência</div>` : ''}
+      <div class="preview-linha">🔒 ${pessoais.length ? `Dados pessoais na planilha (<b>${pessoais.join(', ')}</b>) — descartados na leitura, não vão para o banco` : 'Nenhum dado pessoal encontrado'}</div>
+      ${semResp ? `<div class="preview-linha">👤 ${semResp} sem responsável reconhecido — poderá atribuir na tela</div>` : ''}
+      <div class="preview-cols">Colunas aproveitadas: <b>${encontradas.join('</b> · <b>')}</b></div>
+      <div class="preview-cols">Por responsável: ${Object.entries(porResp).sort((a,b)=>b[1]-a[1]).map(([n,q])=>`<b>${n}</b> (${q})`).join(' · ')}</div>
+    </div>`
+    status.className = 'alert alert-success'
+    status.innerHTML = `✅ Pronto para processar <b>${linhasPre.length}</b> pré-propostas.`
+    btn.disabled = false
+  } catch(err) {
+    drop.classList.remove('ok')
+    prev.innerHTML = `<div class="preview-box erro">❌ ${err.message}</div>`
+    status.className = 'alert alert-danger'
+    status.textContent = 'Não foi possível ler a planilha.'
+  }
+}
+
+function setProg(pct, txt) {
+  document.getElementById('prog-wrap').style.display = 'block'
+  document.getElementById('prog-fill').style.width = pct + '%'
+  document.getElementById('prog-label').textContent = txt
+}
+
+async function enviarPlanilha() {
+  if (!linhasPre.length) return
+  const btn = document.getElementById('btn-enviar')
+  const status = document.getElementById('status-pre')
+  btn.disabled = true
+
+  try {
+    setProg(10, 'Verificando o que já existe...')
+    const existentes = await sbAll('prepropostas?select=codigo,responsavel,observacao')
+    const mapa = {}
+    ;(existentes || []).forEach(p => { mapa[String(p.codigo).trim()] = p })
+
+    setProg(25, 'Preparando os dados...')
+    let novas = 0, atualizadas = 0
+    const registros = linhasPre.map(r => {
+      const ja = mapa[r.codigo]
+      if (ja) atualizadas++; else novas++
+      return {
+        codigo: r.codigo,
+        linha_credito: r.linha_credito,
+        valor: r.valor,
+        data_ultima_comunicacao: r.data_ultima_comunicacao,
+        // Responsável: a planilha manda, mas se vier vazia mantém quem já estava
+        responsavel: r.responsavel !== 'N/A' ? r.responsavel : (ja ? ja.responsavel : 'N/A'),
+        municipio: r.municipio,
+        motivo_devolucao: r.motivo_devolucao,
+        // COMENTÁRIO É FIXO: preserva sempre o que já existe
+        observacao: ja ? (ja.observacao || '') : '',
+        atualizado_em: new Date().toISOString(),
+      }
+    })
+
+    const LOTE = 500
+    for (let i = 0; i < registros.length; i += LOTE) {
+      await sb('prepropostas?on_conflict=codigo', {
+        method: 'POST',
+        prefer: 'resolution=merge-duplicates,return=minimal',
+        body: registros.slice(i, i + LOTE)
+      })
+      const feitas = Math.min(i + LOTE, registros.length)
+      setProg(25 + Math.round((feitas / registros.length) * 70), `Gravando ${feitas} de ${registros.length}...`)
+    }
+
+    await sb('prepropostas_envios', {
+      method: 'POST', prefer: 'return=minimal',
+      body: { arquivo: arquivoPre.name, total_linhas: registros.length, novas, atualizadas }
+    })
+
+    setProg(100, 'Concluído!')
+    status.className = 'alert alert-success'
+    status.innerHTML = '✅ Planilha processada.'
+    document.getElementById('card-resultado').style.display = ''
+    document.getElementById('resultado-content').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total na planilha</div><div class="stat-value">${registros.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Novas</div><div class="stat-value" style="color:var(--success)">${novas}</div></div>
+        <div class="stat-card"><div class="stat-label">Já existiam</div><div class="stat-value" style="color:var(--warn)">${atualizadas}</div><div class="stat-sub">dados atualizados, comentário mantido</div></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="setTab('lista')">Ver Pré-Propostas →</button>`
+    showToast(`✓ ${registros.length} pré-propostas processadas`)
+  } catch(e) {
+    status.className = 'alert alert-danger'
+    status.textContent = '❌ Erro: ' + e.message
+    showToast('Erro: ' + e.message, 'error')
+  }
+  btn.disabled = false
+}
+
+// ============================================================
+// ABA: LISTA
+// ============================================================
+async function carregarPre() {
+  const el = document.getElementById('view-lista')
+  if (!todasPre.length) el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>`
+  try {
+    todasPre = await sbAll('prepropostas?select=*&order=codigo.asc') || []
+    renderLista()
+  } catch(e) {
+    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ Erro ao carregar: ${e.message}</div></div>`
+  }
+}
+
+function opcoesUnicas(campo) {
+  const s = new Set()
+  todasPre.forEach(p => { const v = (p[campo]||'').trim(); if (v) s.add(v) })
+  return [...s].sort((a,b) => a.localeCompare(b,'pt-BR'))
+}
+
+function renderLista() {
+  const el = document.getElementById('view-lista')
+  const colabs = [...new Set(todasPre.map(p => normalizarResponsavel(p.responsavel)))].filter(c => c !== 'N/A').sort()
+
+  el.innerHTML = `
+  <div class="card">
+    <div class="card-title">📋 Pré-Propostas</div>
+
+    <div class="filtros-pessoas">
+      <button class="filtro-btn ${filtroColab==='TODOS'?'active':''}" style="background:var(--azul);color:#fff;border-color:var(--azul)" onclick="setFiltroColab('TODOS')">Todos</button>
+      ${colabs.map(c => {
+        const bg = getCorColab(c), fg = getTextColor(bg)
+        return `<button class="filtro-btn ${filtroColab===c?'active':''}" style="background:${bg};color:${fg};border-color:${bg}" onclick="setFiltroColab('${c}')">${c}</button>`
+      }).join('')}
+      <button class="filtro-btn ${filtroColab==='N/A'?'active':''}" onclick="setFiltroColab('N/A')">Sem responsável</button>
+    </div>
+
+    <div class="filtros-linha">
+      <input type="text" class="search-input" placeholder="🔍 Buscar por código, município ou motivo..." value="${filtroBusca}" oninput="setBusca(this.value)"/>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('filtros-av').classList.toggle('aberto')">⚙ Filtros <span id="fa-badge"></span></button>
+      <button class="btn btn-secondary btn-sm" onclick="exportarExcel()">📊 Excel</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportarPDF()">📄 PDF</button>
+      <button class="btn btn-secondary btn-sm" onclick="carregarPre()">↺ Atualizar</button>
+    </div>
+
+    <div class="filtros-avancados" id="filtros-av">
+      <div class="fa-grid">
+        <div class="fa-campo">
+          <label>🏷️ Linha de Crédito</label>
+          <select class="fa-input" id="f-linha" onchange="aplicarFiltros()">
+            <option value="">Todas</option>
+            ${opcoesUnicas('linha_credito').map(v => `<option value="${v}" ${filtroLinha===v?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fa-campo">
+          <label>📍 Município</label>
+          <select class="fa-input" id="f-municipio" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+            ${opcoesUnicas('municipio').map(v => `<option value="${v}" ${filtroMunicipio===v?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fa-campo">
+          <label>↩️ Motivo da Devolução</label>
+          <select class="fa-input" id="f-motivo" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+            ${opcoesUnicas('motivo_devolucao').map(v => `<option value="${v}" ${filtroMotivo===v?'selected':''}>${v.length>45?v.substring(0,45)+'…':v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fa-campo">
+          <label>💰 Faixa de Valor (R$)</label>
+          <div class="fa-inputs">
+            <input type="number" class="fa-input" id="f-vmin" placeholder="Mínimo" value="${filtroValorMin}" oninput="aplicarFiltros()"/>
+            <span class="fa-sep">até</span>
+            <input type="number" class="fa-input" id="f-vmax" placeholder="Máximo" value="${filtroValorMax}" oninput="aplicarFiltros()"/>
+          </div>
+        </div>
+        <div class="fa-campo">
+          <label>📅 Última Comunicação</label>
+          <div class="fa-inputs">
+            <input type="date" class="fa-input" id="f-cini" value="${filtroComIni}" onchange="aplicarFiltros()"/>
+            <span class="fa-sep">até</span>
+            <input type="date" class="fa-input" id="f-cfim" value="${filtroComFim}" onchange="aplicarFiltros()"/>
+          </div>
+        </div>
+      </div>
+      <div class="fa-acoes">
+        <button class="btn btn-secondary btn-sm ${filtroSemComentario?'active':''}" style="${filtroSemComentario?'background:var(--azul);color:#fff':''}" onclick="filtroSemComentario=!filtroSemComentario;aplicarFiltros()">💬 Só sem comentário</button>
+        <button class="btn btn-secondary btn-sm" style="${filtroSemResponsavel?'background:var(--azul);color:#fff':''}" onclick="filtroSemResponsavel=!filtroSemResponsavel;aplicarFiltros()">👤 Só sem responsável</button>
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">✕ Limpar filtros</button>
+      </div>
+    </div>
+
+    <div id="dashboard-lista"></div>
+
+    <div class="lote-bar" id="lote-bar">
+      <span class="lote-txt" id="lote-txt"></span>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalRespLote()">👤 Atribuir responsável</button>
+      <button class="btn btn-secondary btn-sm" onclick="limparSelecao()">Cancelar</button>
+    </div>
+
+    <div id="tabela-pre"></div>
+  </div>`
+
+  renderIndicadores()
+  renderTabela()
+  atualizarBadge()
+}
+
+function setFiltroColab(c) { filtroColab = c; pagAtual = 1; renderLista() }
+function setBusca(v) { filtroBusca = v; pagAtual = 1; renderTabela(); renderIndicadores(); atualizarBadge() }
+
+function aplicarFiltros() {
+  filtroLinha     = document.getElementById('f-linha')?.value || ''
+  filtroMunicipio = document.getElementById('f-municipio')?.value || ''
+  filtroMotivo    = document.getElementById('f-motivo')?.value || ''
+  filtroValorMin  = document.getElementById('f-vmin')?.value || ''
+  filtroValorMax  = document.getElementById('f-vmax')?.value || ''
+  filtroComIni    = document.getElementById('f-cini')?.value || ''
+  filtroComFim    = document.getElementById('f-cfim')?.value || ''
+  pagAtual = 1
+  renderTabela(); renderIndicadores(); atualizarBadge()
+}
+
+function limparFiltros() {
+  filtroLinha = filtroMunicipio = filtroMotivo = ''
+  filtroValorMin = filtroValorMax = filtroComIni = filtroComFim = ''
+  filtroSemComentario = filtroSemResponsavel = false
+  filtroBusca = ''
+  pagAtual = 1
+  renderLista()
+  showToast('Filtros limpos')
+}
+
+function contarFiltros() {
+  let n = 0
+  ;[filtroLinha,filtroMunicipio,filtroMotivo,filtroValorMin,filtroValorMax,filtroComIni,filtroComFim].forEach(f => { if (f) n++ })
+  if (filtroSemComentario) n++
+  if (filtroSemResponsavel) n++
+  return n
+}
+function atualizarBadge() {
+  const b = document.getElementById('fa-badge')
+  if (b) { const n = contarFiltros(); b.textContent = n ? n : ''; b.style.display = n ? '' : 'none' }
+}
+
+function getFiltradas() {
+  let rows = [...todasPre]
+
+  if (filtroColab === 'N/A')      rows = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A')
+  else if (filtroColab !== 'TODOS') rows = rows.filter(p => normalizarResponsavel(p.responsavel) === filtroColab)
+
+  if (filtroLinha)     rows = rows.filter(p => (p.linha_credito||'').trim() === filtroLinha)
+  if (filtroMunicipio) rows = rows.filter(p => (p.municipio||'').trim() === filtroMunicipio)
+  if (filtroMotivo)    rows = rows.filter(p => (p.motivo_devolucao||'').trim() === filtroMotivo)
+  if (filtroValorMin !== '' && !isNaN(+filtroValorMin)) rows = rows.filter(p => (p.valor||0) >= +filtroValorMin)
+  if (filtroValorMax !== '' && !isNaN(+filtroValorMax)) rows = rows.filter(p => (p.valor||0) <= +filtroValorMax)
+  if (filtroComIni)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] >= filtroComIni)
+  if (filtroComFim)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] <= filtroComFim)
+  if (filtroSemComentario)  rows = rows.filter(p => !(p.observacao||'').trim())
+  if (filtroSemResponsavel) rows = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A')
+
+  if (filtroBusca.trim()) {
+    const q = filtroBusca.toLowerCase()
+    rows = rows.filter(p =>
+      String(p.codigo||'').toLowerCase().includes(q) ||
+      (p.municipio||'').toLowerCase().includes(q) ||
+      (p.motivo_devolucao||'').toLowerCase().includes(q) ||
+      (p.linha_credito||'').toLowerCase().includes(q) ||
+      (p.observacao||'').toLowerCase().includes(q)
+    )
+  }
+
+  rows.sort((a,b) => {
+    let va = a[sortCol] ?? '', vb = b[sortCol] ?? ''
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * sortDir
+    return String(va).localeCompare(String(vb), 'pt-BR') * sortDir
+  })
+  return rows
+}
+
+function setSort(col) {
+  if (sortCol === col) sortDir *= -1
+  else { sortCol = col; sortDir = 1 }
+  pagAtual = 1
+  renderTabela()
+}
+
+function renderIndicadores() {
+  const el = document.getElementById('dashboard-lista')
+  if (!el) return
+  const rows = getFiltradas()
+  const total = rows.length
+  const valor = rows.reduce((s,p) => s + (p.valor||0), 0)
+  const semResp = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A').length
+  const semObs = rows.filter(p => !(p.observacao||'').trim()).length
+  const paradas = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= DIAS_ALERTA }).length
+  const diasArr = rows.map(p => diasDesde(p.data_ultima_comunicacao)).filter(d => d !== null)
+  const media = diasArr.length ? Math.round(diasArr.reduce((s,d)=>s+d,0)/diasArr.length) : 0
+
+  el.innerHTML = `<div class="dash-grid" style="margin-bottom:16px">
+    <div class="dash-card accent-azul"><div class="dash-label">Pré-Propostas</div><div class="dash-value">${total}</div></div>
+    <div class="dash-card accent-dourado"><div class="dash-label">Valor Total</div><div class="dash-value" style="font-size:18px">${formatValor(valor)}</div></div>
+    <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Sem contato há ${DIAS_ALERTA}+ dias<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Pre-propostas cuja ultima comunicacao com o cliente foi ha ${DIAS_ALERTA} dias ou mais.">?</span></div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div></div>
+    <div class="dash-card accent-cinza"><div class="dash-label">Média sem contato</div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
+    <div class="dash-card accent-roxo"><div class="dash-label">Sem responsável</div><div class="dash-value">${semResp}</div></div>
+    <div class="dash-card accent-verde"><div class="dash-label">Sem comentário</div><div class="dash-value">${semObs}</div><div class="dash-sub">de ${total}</div></div>
+  </div>`
+}
+
+function renderTabela() {
+  const el = document.getElementById('tabela-pre')
+  if (!el) return
+  const todas = getFiltradas()
+
+  if (!todas.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma pré-proposta encontrada.</p></div>`
+    return
+  }
+
+  const ini = (pagAtual - 1) * pagTamanho
+  const rows = todas.slice(ini, ini + pagTamanho)
+  const totalPag = Math.ceil(todas.length / pagTamanho)
+
+  const cols = [
+    { key:'responsavel',             label:'Responsável' },
+    { key:'codigo',                  label:'Código' },
+    { key:'linha_credito',           label:'Linha' },
+    { key:'municipio',               label:'Município' },
+    { key:'valor',                   label:'Valor', align:'right' },
+    { key:'data_ultima_comunicacao', label:'Última Comunicação', ajuda:'Data do ultimo contato com o cliente. O numero em vermelho indica ha quantos dias.' },
+    { key:'motivo_devolucao',        label:'Motivo Devolução' },
+    { key:'observacao',              label:'Comentário' },
+  ]
+
+  const ths = cols.map(c => {
+    const s = sortCol === c.key
+    const tip = c.ajuda ? `<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="${c.ajuda}" onclick="event.stopPropagation()">?</span>` : ''
+    return `<th class="${s?'sorted':''}" onclick="setSort('${c.key}')" style="${c.align?'text-align:'+c.align:''}">${c.label}${tip} <span class="sort-icon">${s?(sortDir===1?'↑':'↓'):'↕'}</span></th>`
+  }).join('')
+
+  const trs = rows.map(p => {
+    const resp = normalizarResponsavel(p.responsavel)
+    const bg = getCorColab(resp), fg = getTextColor(bg)
+    const dias = diasDesde(p.data_ultima_comunicacao)
+    const alerta = dias !== null && dias >= DIAS_ALERTA
+    const obs = (p.observacao||'').trim()
+    const sel = selecionadas.has(String(p.codigo))
+    const motivo = (p.motivo_devolucao||'').trim()
+
+    const respCell = resp === 'N/A'
+      ? `<td><div class="resp-cell"><span class="resp-tarja" style="background:#cbd5e1"></span>
+           <span class="dd-trigger" onclick="abrirModalResp('${p.codigo}','N/A')">👤 Atribuir</span></div></td>`
+      : `<td><div class="resp-cell"><span class="resp-tarja" style="background:${bg}"></span>
+           <span class="resp-avatar" style="background:${bg};color:${fg}">${getIniciais(resp)}</span>
+           <span class="resp-nome">${resp}</span>
+           <button class="btn-trocar" title="Trocar responsável" onclick="abrirModalResp('${p.codigo}','${resp}')">✎</button></div></td>`
+
+    return `<tr class="${sel?'sel':''}" data-codigo="${p.codigo}">
+      <td style="width:34px"><input type="checkbox" ${sel?'checked':''} onclick="toggleSel('${p.codigo}', this.checked)"/></td>
+      ${respCell}
+      <td class="td-codigo">${p.codigo}</td>
+      <td>${p.linha_credito ? `<span class="badge" style="background:#EFF6FF;color:#1E40AF;border-color:#bfdbfe">${p.linha_credito}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
+      <td style="font-size:12.5px">${p.municipio || '—'}</td>
+      <td class="td-valor">${formatValor(p.valor)}</td>
+      <td>${p.data_ultima_comunicacao
+            ? `<span class="alerta-dias">${alerta?'⚠️ ':''}${formatData(p.data_ultima_comunicacao)} ${alerta?`<span class="dias-badge">${dias} dias</span>`:`<span class="dias-ok">(${dias}d)</span>`}</span>`
+            : '<span style="color:#cbd5e1">—</span>'}</td>
+      <td>${motivo ? `<span class="badge-motivo" title="${motivo.replace(/"/g,'&quot;')}">${motivo}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
+      <td><button class="obs-btn ${obs?'':'vazio'}" onclick="abrirModalObs('${p.codigo}')" title="${obs.replace(/"/g,'&quot;')}">${obs ? `<span class="obs-dot"></span>${obs}` : '+ Comentar'}</button></td>
+    </tr>`
+  }).join('')
+
+  el.innerHTML = `
+    <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:8px">${todas.length} pré-proposta${todas.length>1?'s':''} encontrada${todas.length>1?'s':''}</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:34px"><input type="checkbox" onclick="toggleTodas(this.checked)"/></th>${ths}</tr></thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+    <div class="pag-wrap">
+      <span class="pag-info">Mostrando <b>${ini+1}</b>–<b>${Math.min(ini+pagTamanho, todas.length)}</b> de <b>${todas.length}</b></span>
+      <div class="pag-ctrls">
+        <button class="pag-btn" onclick="irPagina(1)" ${pagAtual===1?'disabled':''}>«</button>
+        <button class="pag-btn" onclick="irPagina(${pagAtual-1})" ${pagAtual===1?'disabled':''}>‹</button>
+        <span style="font-size:12.5px;padding:0 8px">${pagAtual} / ${totalPag}</span>
+        <button class="pag-btn" onclick="irPagina(${pagAtual+1})" ${pagAtual===totalPag?'disabled':''}>›</button>
+        <button class="pag-btn" onclick="irPagina(${totalPag})" ${pagAtual===totalPag?'disabled':''}>»</button>
+        <select class="fa-input" style="width:auto;margin-left:8px" onchange="pagTamanho=+this.value;pagAtual=1;renderTabela()">
+          ${[25,50,100,200].map(n=>`<option value="${n}" ${pagTamanho===n?'selected':''}>${n} por página</option>`).join('')}
+        </select>
+      </div>
+    </div>`
+}
+
+function irPagina(n) {
+  const total = Math.ceil(getFiltradas().length / pagTamanho)
+  pagAtual = Math.max(1, Math.min(n, total))
+  renderTabela()
+}
+
+// ── Seleção em lote ──
+function toggleSel(codigo, marcado) {
+  const c = String(codigo)
+  if (marcado) selecionadas.add(c); else selecionadas.delete(c)
+  atualizarLoteBar()
+  const tr = document.querySelector(`tr[data-codigo="${c}"]`)
+  if (tr) tr.classList.toggle('sel', marcado)
+}
+function toggleTodas(marcado) {
+  const ini = (pagAtual - 1) * pagTamanho
+  getFiltradas().slice(ini, ini + pagTamanho).forEach(p => {
+    if (marcado) selecionadas.add(String(p.codigo)); else selecionadas.delete(String(p.codigo))
+  })
+  renderTabela(); atualizarLoteBar()
+}
+function limparSelecao() { selecionadas.clear(); renderTabela(); atualizarLoteBar() }
+function atualizarLoteBar() {
+  const bar = document.getElementById('lote-bar')
+  if (!bar) return
+  bar.classList.toggle('ativo', selecionadas.size > 0)
+  const t = document.getElementById('lote-txt')
+  if (t) t.textContent = `${selecionadas.size} selecionada${selecionadas.size>1?'s':''}`
+}
+
+// ============================================================
+// MODAL: RESPONSÁVEL
+// ============================================================
+let modalRespCodigo = null, modalRespLote = false
+
+function abrirModalResp(codigo, atual) {
+  modalRespCodigo = String(codigo); modalRespLote = false
+  document.getElementById('mr-titulo').textContent = atual === 'N/A' ? 'Atribuir responsável' : 'Trocar responsável'
+  document.getElementById('mr-sub').textContent = `Pré-proposta ${codigo}`
+  document.getElementById('mr-busca').value = ''
+  montarGridResp(atual)
+  document.getElementById('modal-resp').style.display = 'flex'
+}
+function abrirModalRespLote() {
+  modalRespCodigo = null; modalRespLote = true
+  document.getElementById('mr-titulo').textContent = 'Atribuir responsável em lote'
+  document.getElementById('mr-sub').textContent = `${selecionadas.size} pré-propostas selecionadas`
+  document.getElementById('mr-busca').value = ''
+  montarGridResp('N/A')
+  document.getElementById('modal-resp').style.display = 'flex'
+}
+function montarGridResp(atual) {
+  const remover = (atual && atual !== 'N/A' && !modalRespLote)
+    ? `<div class="mr-opt mr-opt-remover" data-nome="N/A" onclick="escolherResp('N/A')">
+         <span class="mr-opt-avatar" style="background:#f1f5f9;color:#94a3b8">✕</span>
+         <span class="mr-opt-nome" style="color:#64748b">Remover</span></div>` : ''
+  document.getElementById('mr-grid').innerHTML = remover + COLAB_LIST.map(c => {
+    const bg = getCorColab(c), fg = getTextColor(bg)
+    return `<div class="mr-opt ${c===atual?'atual':''}" data-nome="${c}" onclick="escolherResp('${c}')">
+      <span class="mr-opt-avatar" style="background:${bg};color:${fg}">${getIniciais(c)}</span>
+      <span class="mr-opt-nome">${c}</span>${c===atual?' ✓':''}</div>`
+  }).join('')
+}
+function filtrarGridResp(q) {
+  const t = (q||'').toLowerCase()
+  document.querySelectorAll('#mr-grid .mr-opt').forEach(o => {
+    o.style.display = (o.dataset.nome||'').toLowerCase().includes(t) ? '' : 'none'
+  })
+}
+function fecharModalResp(e) {
+  if (e && e.target !== document.getElementById('modal-resp')) return
+  document.getElementById('modal-resp').style.display = 'none'
+  modalRespCodigo = null; modalRespLote = false
+}
+
+async function escolherResp(novo) {
+  const emLote = modalRespLote, codigo = modalRespCodigo
+  document.getElementById('modal-resp').style.display = 'none'
+  modalRespCodigo = null; modalRespLote = false
+
+  if (emLote) {
+    const lista = [...selecionadas]
+    let ok = 0
+    for (const c of lista) {
+      try {
+        await sb(`prepropostas?codigo=eq.${encodeURIComponent(c)}`, {
+          method: 'PATCH', prefer: 'return=minimal', body: { responsavel: novo }
+        })
+        const i = todasPre.findIndex(p => String(p.codigo) === c)
+        if (i !== -1) todasPre[i].responsavel = novo
+        ok++
+      } catch(e) {}
+    }
+    selecionadas.clear()
+    showToast(`✓ ${ok} pré-propostas atribuídas a ${novo}`)
+    renderLista()
+    return
+  }
+
+  try {
+    await sb(`prepropostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+      method: 'PATCH', prefer: 'return=minimal', body: { responsavel: novo }
+    })
+    const i = todasPre.findIndex(p => String(p.codigo) === codigo)
+    if (i !== -1) todasPre[i].responsavel = novo
+    showToast(novo === 'N/A' ? '✓ Responsável removido' : `✓ Atribuída a ${novo}`)
+    renderLista()
+  } catch(e) { showToast('Erro: ' + e.message, 'error') }
+}
+
+// ============================================================
+// MODAL: COMENTÁRIO (fixo — só muda aqui)
+// ============================================================
+let modalObsCodigo = null
+
+function abrirModalObs(codigo) {
+  modalObsCodigo = String(codigo)
+  const p = todasPre.find(x => String(x.codigo) === modalObsCodigo)
+  document.getElementById('modal-obs-info').textContent = `Pré-proposta ${codigo}`
+  document.getElementById('modal-obs-texto').value = p ? (p.observacao || '') : ''
+  document.getElementById('modal-obs').style.display = 'flex'
+  carregarHistoricoObs(modalObsCodigo)
+}
+
+async function carregarHistoricoObs(codigo) {
+  const el = document.getElementById('modal-obs-hist')
+  el.innerHTML = '<span class="obs-hist-vazio">⏳ Carregando...</span>'
+  try {
+    const h = await sb(`prepropostas_obs_historico?select=texto,criado_em&codigo=eq.${encodeURIComponent(codigo)}&order=criado_em.desc&limit=30`)
+    el.innerHTML = (h && h.length)
+      ? h.map(x => {
+          const d = x.criado_em ? new Date(x.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : ''
+          return `<div class="obs-hist-item"><span class="obs-hist-data">${d}</span>${x.texto}</div>`
+        }).join('')
+      : '<span class="obs-hist-vazio">Nenhum comentário anterior</span>'
+  } catch(e) {
+    el.innerHTML = '<span class="obs-hist-vazio">Histórico indisponível</span>'
+  }
+}
+
+function fecharModalObs(e) {
+  if (e && e.target !== document.getElementById('modal-obs')) return
+  document.getElementById('modal-obs').style.display = 'none'
+  modalObsCodigo = null
+}
+
+async function salvarObservacao() {
+  if (!modalObsCodigo) return
+  const texto = document.getElementById('modal-obs-texto').value.trim()
+  const btn = document.getElementById('btn-salvar-obs')
+  btn.disabled = true; btn.textContent = 'Salvando...'
+  try {
+    const i = todasPre.findIndex(p => String(p.codigo) === modalObsCodigo)
+    const anterior = i !== -1 ? (todasPre[i].observacao || '').trim() : ''
+    // Guarda a versão que está saindo, para não perder nada
+    if (anterior && anterior !== texto) {
+      try {
+        await sb('prepropostas_obs_historico', {
+          method: 'POST', prefer: 'return=minimal',
+          body: { codigo: modalObsCodigo, texto: anterior }
+        })
+      } catch(e) {}
+    }
+    await sb(`prepropostas?codigo=eq.${encodeURIComponent(modalObsCodigo)}`, {
+      method: 'PATCH', prefer: 'return=minimal', body: { observacao: texto }
+    })
+    if (i !== -1) todasPre[i].observacao = texto
+    document.getElementById('modal-obs').style.display = 'none'
+    modalObsCodigo = null
+    showToast('Comentário salvo!')
+    renderTabela(); renderIndicadores()
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, 'error')
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar'
+  }
+}
+
+// ============================================================
+// ABA: PAINEL
+// ============================================================
+let painelColab = '', painelLinha = '', painelMunicipio = '', painelMotivo = ''
+
+async function renderPainel() {
+  const el = document.getElementById('view-painel')
+  if (!todasPre.length) {
+    el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>`
+    try { todasPre = await sbAll('prepropostas?select=*') || [] } catch(e) {}
+  }
+  if (!todasPre.length) {
+    el.innerHTML = `<div class="card"><div class="painel-vazio">📭 Nenhuma pré-proposta ainda.<br>Envie a planilha na aba "Enviar Planilha".</div></div>`
+    return
+  }
+
+  let props = [...todasPre]
+  if (painelColab)     props = props.filter(p => normalizarResponsavel(p.responsavel) === painelColab)
+  if (painelLinha)     props = props.filter(p => (p.linha_credito||'').trim() === painelLinha)
+  if (painelMunicipio) props = props.filter(p => (p.municipio||'').trim() === painelMunicipio)
+  if (painelMotivo)    props = props.filter(p => (p.motivo_devolucao||'').trim() === painelMotivo)
+
+  const total = props.length || 1
+  const valorTotal = props.reduce((s,p) => s + (p.valor||0), 0)
+  const semResp = props.filter(p => normalizarResponsavel(p.responsavel) === 'N/A').length
+  const semObs = props.filter(p => !(p.observacao||'').trim()).length
+  const paradas = props.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= DIAS_ALERTA }).length
+  const diasArr = props.map(p => diasDesde(p.data_ultima_comunicacao)).filter(d => d !== null)
+  const media = diasArr.length ? Math.round(diasArr.reduce((s,d)=>s+d,0)/diasArr.length) : 0
+
+  const agrupar = (campo, normaliza) => {
+    const m = {}
+    props.forEach(p => {
+      const k = normaliza ? normaliza(p[campo]) : ((p[campo]||'').trim() || '(não informado)')
+      if (!m[k]) m[k] = { qtd: 0, valor: 0 }
+      m[k].qtd++; m[k].valor += (p.valor||0)
+    })
+    return Object.entries(m).sort((a,b) => b[1].qtd - a[1].qtd)
+  }
+
+  const secaoBarras = (titulo, sub, dados, cor) => {
+    if (!dados.length) return ''
+    const max = Math.max(1, ...dados.map(d => d[1].qtd))
+    return `<div class="painel-secao">
+      <div class="painel-secao-titulo">${titulo}</div>
+      <div class="painel-secao-sub">${sub}</div>
+      ${dados.map(([nome, d]) => {
+        const pct = ((d.qtd/total)*100).toFixed(1)
+        const larg = Math.round((d.qtd/max)*100)
+        const c = typeof cor === 'function' ? cor(nome) : cor
+        return `<div class="barra-linha">
+          <div class="barra-nome" title="${nome}">${nome} <span class="barra-qtd">(${d.qtd})</span></div>
+          <div class="barra-track"><div class="barra-fill" style="width:${Math.max(larg,2)}%;background:${c}"></div></div>
+          <div class="barra-pct">${pct}%</div>
+          <div class="barra-valor">${formatValor(d.valor)}</div>
+        </div>`
+      }).join('')}
+    </div>`
+  }
+
+  const colabs = [...new Set(todasPre.map(p => normalizarResponsavel(p.responsavel)))].filter(c => c !== 'N/A').sort()
+  const cargas = agrupar('responsavel', v => normalizarResponsavel(v))
+
+  el.innerHTML = `
+  <div class="card">
+    <div class="card-title">
+      📊 Painel
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="exportarPainelExcel()">📊 Excel</button>
+        <button class="btn btn-secondary btn-sm" onclick="renderPainel()">↺ Atualizar</button>
+      </span>
+    </div>
+    <div class="painel-filtros">
+      <select class="fa-input" onchange="painelColab=this.value;renderPainel()">
+        <option value="">👤 Todos os responsáveis</option>
+        ${colabs.map(c=>`<option value="${c}" ${painelColab===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <select class="fa-input" onchange="painelLinha=this.value;renderPainel()">
+        <option value="">🏷️ Todas as linhas</option>
+        ${opcoesUnicas('linha_credito').map(v=>`<option value="${v}" ${painelLinha===v?'selected':''}>${v}</option>`).join('')}
+      </select>
+      <select class="fa-input" onchange="painelMunicipio=this.value;renderPainel()">
+        <option value="">📍 Todos os municípios</option>
+        ${opcoesUnicas('municipio').map(v=>`<option value="${v}" ${painelMunicipio===v?'selected':''}>${v}</option>`).join('')}
+      </select>
+      <select class="fa-input" onchange="painelMotivo=this.value;renderPainel()">
+        <option value="">↩️ Todos os motivos</option>
+        ${opcoesUnicas('motivo_devolucao').map(v=>`<option value="${v}" ${painelMotivo===v?'selected':''}>${v.length>40?v.substring(0,40)+'…':v}</option>`).join('')}
+      </select>
+      ${(painelColab||painelLinha||painelMunicipio||painelMotivo) ? `<button class="btn btn-secondary btn-sm" onclick="painelColab='';painelLinha='';painelMunicipio='';painelMotivo='';renderPainel()">✕ Limpar</button>` : ''}
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card accent-azul"><div class="dash-label">Total</div><div class="dash-value">${props.length}</div></div>
+      <div class="dash-card accent-dourado"><div class="dash-label">Valor Total</div><div class="dash-value" style="font-size:18px">${formatValor(valorTotal)}</div></div>
+      <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Sem contato ${DIAS_ALERTA}+ dias</div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div><div class="dash-sub">${((paradas/total)*100).toFixed(1)}% do total</div></div>
+      <div class="dash-card accent-cinza"><div class="dash-label">Média sem contato</div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
+      <div class="dash-card accent-roxo"><div class="dash-label">Sem responsável</div><div class="dash-value">${semResp}</div></div>
+      <div class="dash-card accent-verde"><div class="dash-label">Sem comentário</div><div class="dash-value">${semObs}</div></div>
+    </div>
+  </div>
+
+  <div class="painel-secao">
+    <div class="painel-secao-titulo">👥 Carga por Responsável</div>
+    <div class="painel-secao-sub">Quantas pré-propostas e o valor de cada pessoa</div>
+    <div class="carga-grid">
+      ${cargas.filter(([n]) => n !== 'N/A').map(([nome, d]) => {
+        const bg = getCorColab(nome), fg = getTextColor(bg)
+        const par = props.filter(p => normalizarResponsavel(p.responsavel) === nome &&
+                                      (() => { const x = diasDesde(p.data_ultima_comunicacao); return x !== null && x >= DIAS_ALERTA })()).length
+        return `<div class="carga-card" style="--cor-colab:${bg}">
+          <span class="resp-avatar" style="background:${bg};color:${fg}">${getIniciais(nome)}</span>
+          <div>
+            <div class="carga-nome">${nome}</div>
+            <div class="carga-nums"><span><b>${d.qtd}</b> pré-propostas</span></div>
+            <div class="carga-valor">${formatValor(d.valor)}</div>
+            ${par ? `<div style="font-size:11px;color:#dc2626;font-weight:600;margin-top:3px">⚠️ ${par} sem contato</div>` : ''}
+          </div>
+        </div>`
+      }).join('')}
+    </div>
+  </div>
+
+  ${secaoBarras('🏷️ Por Linha de Crédito', 'Distribuição das pré-propostas por produto', agrupar('linha_credito'), '#2563EB')}
+  ${secaoBarras('↩️ Por Motivo da Devolução', 'O que mais faz a pré-proposta voltar', agrupar('motivo_devolucao'), '#EA580C')}
+  ${secaoBarras('📍 Por Município', 'Os 15 municípios com mais pré-propostas', agrupar('municipio').slice(0,15), '#059669')}
+  `
+}
+
+// ============================================================
+// ABA: ENVIOS
+// ============================================================
+async function carregarEnvios() {
+  const el = document.getElementById('view-envios')
+  el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>`
+  try {
+    const envios = await sb('prepropostas_envios?select=*&order=criado_em.desc&limit=50') || []
+    if (!envios.length) {
+      el.innerHTML = `<div class="card"><div class="painel-vazio">📭 Nenhum envio registrado ainda.</div></div>`
+      return
+    }
+    el.innerHTML = `<div class="card">
+      <div class="card-title">🕒 Histórico de Envios</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Arquivo</th><th style="text-align:right">Linhas</th><th style="text-align:right">Novas</th><th style="text-align:right">Atualizadas</th></tr></thead>
+          <tbody>${envios.map(e => `<tr>
+            <td style="font-size:12.5px">${e.criado_em ? new Date(e.criado_em).toLocaleString('pt-BR') : '—'}</td>
+            <td style="font-size:12.5px">${e.arquivo || '—'}</td>
+            <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${e.total_linhas ?? 0}</td>
+            <td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--success)">${e.novas ?? 0}</td>
+            <td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--warn)">${e.atualizadas ?? 0}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`
+  } catch(e) {
+    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ Erro: ${e.message}</div></div>`
+  }
+}
+
+// ============================================================
+// EXPORTAÇÃO
+// ============================================================
+function exportarExcel() {
+  const rows = getFiltradas()
+  if (!rows.length) return showToast('Nada para exportar', 'error')
+  const dados = rows.map(p => ({
+    'Código': p.codigo,
+    'Responsável': normalizarResponsavel(p.responsavel),
+    'Linha de Crédito': p.linha_credito || '',
+    'Município': p.municipio || '',
+    'Valor': p.valor || 0,
+    'Última Comunicação': formatData(p.data_ultima_comunicacao),
+    'Dias sem contato': diasDesde(p.data_ultima_comunicacao) ?? '',
+    'Motivo Devolução': p.motivo_devolucao || '',
+    'Comentário': p.observacao || '',
+  }))
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dados), 'Pré-Propostas')
+  XLSX.writeFile(wb, `prepropostas_${new Date().toISOString().split('T')[0]}.xlsx`)
+  showToast(`✓ ${rows.length} linhas exportadas`)
+}
+
+function exportarPainelExcel() {
+  const wb = XLSX.utils.book_new()
+  const grupo = (campo, norm) => {
+    const m = {}
+    todasPre.forEach(p => {
+      const k = norm ? norm(p[campo]) : ((p[campo]||'').trim() || '(não informado)')
+      if (!m[k]) m[k] = { qtd: 0, valor: 0 }
+      m[k].qtd++; m[k].valor += (p.valor||0)
+    })
+    return Object.entries(m).sort((a,b)=>b[1].qtd-a[1].qtd).map(([n,d]) => ({ Item: n, Quantidade: d.qtd, Valor: d.valor }))
+  }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(grupo('responsavel', v=>normalizarResponsavel(v))), 'Por Responsável')
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(grupo('linha_credito')), 'Por Linha')
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(grupo('motivo_devolucao')), 'Por Motivo')
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(grupo('municipio')), 'Por Município')
+  XLSX.writeFile(wb, `painel_prepropostas_${new Date().toISOString().split('T')[0]}.xlsx`)
+  showToast('✓ Painel exportado')
+}
+
+function exportarPDF() {
+  const rows = getFiltradas()
+  if (!rows.length) return showToast('Nada para exportar', 'error')
+  const w = window.open('', '_blank')
+  w.document.write(`<html><head><meta charset="utf-8"><title>Pré-Propostas</title>
+  <style>
+    body{font-family:'Segoe UI',Arial,sans-serif;padding:24px;color:#1a1a2e}
+    h1{color:#003366;font-size:19px;margin-bottom:2px}
+    .sub{color:#6b7280;font-size:12px;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:10.5px}
+    th{background:#003366;color:#fff;padding:7px;text-align:left}
+    td{padding:6px 7px;border-bottom:1px solid #e5e7eb}
+    tr:nth-child(even) td{background:#f8fafc}
+    .r{text-align:right}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>Fomento Paraná — Pré-Propostas</h1>
+  <div class="sub">${rows.length} registros · gerado em ${new Date().toLocaleString('pt-BR')}</div>
+  <table><thead><tr><th>Código</th><th>Responsável</th><th>Linha</th><th>Município</th><th class="r">Valor</th><th>Últ. Comunicação</th><th>Motivo</th><th>Comentário</th></tr></thead><tbody>
+  ${rows.map(p=>`<tr>
+    <td>${p.codigo}</td><td>${normalizarResponsavel(p.responsavel)}</td>
+    <td>${p.linha_credito||''}</td><td>${p.municipio||''}</td>
+    <td class="r">${formatValor(p.valor)}</td>
+    <td>${formatData(p.data_ultima_comunicacao)}</td>
+    <td>${(p.motivo_devolucao||'').substring(0,40)}</td>
+    <td>${(p.observacao||'').substring(0,40)}</td></tr>`).join('')}
+  </tbody></table></body></html>`)
+  w.document.close()
+  setTimeout(() => w.print(), 400)
+}
+
+// ============================================================
+// INÍCIO
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return
+  const mr = document.getElementById('modal-resp')
+  if (mr && mr.style.display === 'flex') return fecharModalResp()
+  const mo = document.getElementById('modal-obs')
+  if (mo && mo.style.display === 'flex') return fecharModalObs()
+})
+
+renderEnviar()
+</script>
+</body>
+</html>
