@@ -411,32 +411,62 @@ const COL_CNPJ = ['CPF_CNPJ','CPF/CNPJ','CNPJ','CPF']
 // Estas nunca entram no sistema
 const COLUNAS_DESCARTADAS = ['CPF_CNPJ','TIPO_PESSOA','CPF_USUARIO','EMAIL','DATA_ENVIO','SITUACAO','TIPO GARANTIA','MOTIVO RECUSA']
 
-function acharCol(row, nomes) {
-  const chaves = Object.keys(row)
-  // Tira acentos, pontuação e espaços extras, para casar mesmo com
-  // variações do cabeçalho entre exportações do FomentoNet.
-  const norm = s => s.toString().trim().toUpperCase()
+// Posição de cada coluna no layout padrão do PrePropostasHabilitadas
+// (A=0 ... Q=16). Serve de rede de segurança quando o cabeçalho vem
+// escrito de um jeito que não reconhecemos pelo nome.
+const POSICAO_PADRAO = {
+  codigo: 0, linha_credito: 8, valor: 9,
+  data_ultima_comunicacao: 11, responsavel: 12,
+  municipio: 13, motivo_devolucao: 15,
+  primeiro_nome: 2, data_cadastro: 7,
+}
+
+function normCab(s) {
+  return s.toString().trim().toUpperCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^A-Z0-9]+/g,' ').trim()
-  const chavesNorm = chaves.map(k => ({ original: k, n: norm(k) }))
-  // 1ª tentativa: igual
+}
+
+function acharCol(row, nomes, posicao) {
+  const chaves = Object.keys(row)
+  const chavesNorm = chaves.map(k => ({ original: k, n: normCab(k) }))
+
+  // 1ª tentativa: nome igual
   for (const n of nomes) {
-    const alvo = norm(n)
+    const alvo = normCab(n)
     const achou = chavesNorm.find(k => k.n === alvo)
     if (achou) return row[achou.original]
   }
-  // 2ª tentativa: um contém o outro (ex: "CODIGO PRE PROPOSTA FGF")
+  // 2ª tentativa: um contém o outro (só para nomes com 4+ letras,
+  // senão "CPF" casaria com "CPF_USUARIO" por engano)
   for (const n of nomes) {
-    const alvo = norm(n)
-    const achou = chavesNorm.find(k => k.n.includes(alvo) || alvo.includes(k.n))
+    const alvo = normCab(n)
+    if (alvo.length < 4) continue
+    const achou = chavesNorm.find(k => k.n.length >= 4 && (k.n.includes(alvo) || alvo.includes(k.n)))
     if (achou) return row[achou.original]
   }
+  // 3ª tentativa: pela posição da coluna no layout padrão
+  if (posicao !== undefined && chaves[posicao] !== undefined) return row[chaves[posicao]]
   return undefined
+}
+
+// Diz se a coluna foi achada pelo nome (sem recorrer à posição)
+function achouPeloNome(row, nomes) {
+  return acharCol(row, nomes, undefined) !== undefined
+}
+
+// Tira caracteres de controle que quebram o JSON enviado ao Supabase
+function limparTexto(v) {
+  return String(v ?? '')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')   // controles
+    .replace(/[\uD800-\uDFFF]/g, '')           // surrogates soltos
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 // Guarda só o primeiro nome, nunca o nome completo
 function primeiroNome(txt) {
-  const t = (txt || '').toString().trim()
+  const t = limparTexto(txt)
   if (!t) return ''
   const p = t.split(/\s+/)[0]
   return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
@@ -658,10 +688,12 @@ async function lerArquivoPre(file) {
     if (!rows.length) throw new Error('A planilha está vazia')
 
     const cabecalhos = Object.keys(rows[0])
-    const encontradas = [], faltando = []
-    COLUNAS_UTEIS.forEach(cl => {
-      const tem = acharCol(rows[0], cl.nomes) !== undefined
-      if (tem) encontradas.push(cl.label)
+    const encontradas = [], porPosicao = [], faltando = []
+    COLUNAS_UTEIS.forEach((cl, i) => {
+      const chave = Object.keys(POSICAO_PADRAO)[0] // placeholder
+      const pos = POSICAO_PADRAO[cl.campo]
+      if (achouPeloNome(rows[0], cl.nomes)) encontradas.push(cl.label)
+      else if (pos !== undefined && cabecalhos[pos] !== undefined) porPosicao.push(`${cl.label} → coluna ${String.fromCharCode(65+pos)} (${cabecalhos[pos]})`)
       else if (cl.obrigatoria) faltando.push(cl.label)
     })
 
@@ -679,17 +711,18 @@ async function lerArquivoPre(file) {
     }
 
     // Transforma. O CNPJ é lido só para deduplicar e não entra em linhasPre.
+    const P = POSICAO_PADRAO
     let brutas = rows.map(row => ({
-      codigo:                 String(acharCol(row, COLUNAS_UTEIS[0].nomes) ?? '').trim(),
-      linha_credito:          String(acharCol(row, COLUNAS_UTEIS[1].nomes) ?? '').trim(),
-      valor:                  parseValor(acharCol(row, COLUNAS_UTEIS[2].nomes)),
-      data_ultima_comunicacao: isoData(parseData(acharCol(row, COLUNAS_UTEIS[3].nomes))),
-      responsavel:            normalizarResponsavel(acharCol(row, COLUNAS_UTEIS[4].nomes)),
-      municipio:              String(acharCol(row, COLUNAS_UTEIS[5].nomes) ?? '').trim(),
-      motivo_devolucao:       String(acharCol(row, COLUNAS_UTEIS[6].nomes) ?? '').trim(),
-      primeiro_nome:          primeiroNome(acharCol(row, COLUNAS_UTEIS[7].nomes)),
-      data_cadastro:          isoData(parseData(acharCol(row, COLUNAS_UTEIS[8].nomes))),
-      _cnpj:                  String(acharCol(row, COL_CNPJ) ?? '').replace(/\D/g,''),
+      codigo:                 limparTexto(acharCol(row, COLUNAS_UTEIS[0].nomes, P.codigo)),
+      linha_credito:          limparTexto(acharCol(row, COLUNAS_UTEIS[1].nomes, P.linha_credito)),
+      valor:                  parseValor(acharCol(row, COLUNAS_UTEIS[2].nomes, P.valor)),
+      data_ultima_comunicacao: isoData(parseData(acharCol(row, COLUNAS_UTEIS[3].nomes, P.data_ultima_comunicacao))),
+      responsavel:            normalizarResponsavel(acharCol(row, COLUNAS_UTEIS[4].nomes, P.responsavel)),
+      municipio:              limparTexto(acharCol(row, COLUNAS_UTEIS[5].nomes, P.municipio)),
+      motivo_devolucao:       limparTexto(acharCol(row, COLUNAS_UTEIS[6].nomes, P.motivo_devolucao)),
+      primeiro_nome:          primeiroNome(acharCol(row, COLUNAS_UTEIS[7].nomes, P.primeiro_nome)),
+      data_cadastro:          isoData(parseData(acharCol(row, COLUNAS_UTEIS[8].nomes, P.data_cadastro))),
+      _cnpj:                  String(acharCol(row, COL_CNPJ, 1) ?? '').replace(/\D/g,''),
     })).filter(r => r.codigo)
 
     // 1) Fora as do Fomento Giro Fácil — esse produto tem sistema próprio
@@ -732,7 +765,11 @@ async function lerArquivoPre(file) {
       ${dupCnpj ? `<div class="preview-linha">👥 ${dupCnpj} duplicada${dupCnpj>1?'s':''} pelo mesmo CNPJ — mantida a de maior código</div>` : ''}
       <div class="preview-linha">🔒 ${pessoais.length ? `Dados pessoais na planilha (<b>${pessoais.join(', ')}</b>) — descartados na leitura, não vão para o banco` : 'Nenhum dado pessoal encontrado'}</div>
       ${semResp ? `<div class="preview-linha">👤 ${semResp} sem responsável reconhecido — poderá atribuir na tela</div>` : ''}
-      <div class="preview-cols">Colunas aproveitadas: <b>${encontradas.join('</b> · <b>')}</b></div>
+      <div class="preview-cols">Reconhecidas pelo nome: <b>${encontradas.join('</b> · <b>')}</b></div>
+      ${porPosicao.length ? `<div class="preview-cols" style="color:#92400e">Reconhecidas pela posição: ${porPosicao.join(' · ')}</div>` : ''}
+      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:11.5px;color:#64748b">Ver as ${cabecalhos.length} colunas da planilha</summary>
+        <div class="preview-cols">${cabecalhos.map((h,i) => `<code>${String.fromCharCode(65+i)}: ${h}</code>`).join(' ')}</div>
+      </details>
       <div class="preview-cols">Por responsável: ${Object.entries(porResp).sort((a,b)=>b[1]-a[1]).map(([n,q])=>`<b>${n}</b> (${q})`).join(' · ')}</div>
     </div>`
     status.className = 'alert alert-success'
@@ -781,14 +818,14 @@ async function enviarPlanilha() {
       const ja = mapa[r.codigo]
       if (ja) atualizadas++; else novas++
       return {
-        codigo: r.codigo,
-        linha_credito: r.linha_credito,
-        valor: r.valor,
+        codigo: limparTexto(r.codigo),
+        linha_credito: limparTexto(r.linha_credito),
+        valor: Number.isFinite(r.valor) ? r.valor : 0,
         data_ultima_comunicacao: r.data_ultima_comunicacao,
         // Responsável: a planilha manda, mas se vier vazia mantém quem já estava
         responsavel: r.responsavel !== 'N/A' ? r.responsavel : (ja ? ja.responsavel : 'N/A'),
-        municipio: r.municipio,
-        motivo_devolucao: r.motivo_devolucao,
+        municipio: limparTexto(r.municipio),
+        motivo_devolucao: limparTexto(r.motivo_devolucao),
         ...(temCamposMensagem ? { primeiro_nome: r.primeiro_nome, data_cadastro: r.data_cadastro } : {}),
         // COMENTÁRIO É FIXO: preserva sempre o que já existe
         observacao: ja ? (ja.observacao || '') : '',
@@ -796,15 +833,32 @@ async function enviarPlanilha() {
       }
     })
 
-    const LOTE = 500
+    // Grava em lotes. Se o Supabase recusar o lote (payload grande demais
+    // ou algum caractere problemático), tenta de novo com lotes menores.
+    async function gravarLote(lote, tamanho) {
+      try {
+        await sb('prepropostas?on_conflict=codigo', {
+          method: 'POST',
+          prefer: 'resolution=merge-duplicates,return=minimal',
+          body: lote
+        })
+      } catch (err) {
+        if (tamanho <= 1) throw err        // não dá para dividir mais
+        const meio = Math.ceil(lote.length / 2)
+        await gravarLote(lote.slice(0, meio), meio)
+        await gravarLote(lote.slice(meio), lote.length - meio)
+      }
+    }
+
+    const LOTE = 200
+    let gravadas = 0
     for (let i = 0; i < registros.length; i += LOTE) {
-      await sb('prepropostas?on_conflict=codigo', {
-        method: 'POST',
-        prefer: 'resolution=merge-duplicates,return=minimal',
-        body: registros.slice(i, i + LOTE)
-      })
-      const feitas = Math.min(i + LOTE, registros.length)
-      setProg(25 + Math.round((feitas / registros.length) * 70), `Gravando ${feitas} de ${registros.length}...`)
+      const lote = registros.slice(i, i + LOTE)
+      await gravarLote(lote, lote.length)
+      gravadas += lote.length
+      const pct = 25 + Math.round((gravadas / registros.length) * 70)
+      setProg(pct, `Gravando ${gravadas.toLocaleString('pt-BR')} de ${registros.length.toLocaleString('pt-BR')}...`)
+      await new Promise(r => setTimeout(r, 40))   // respira entre lotes
     }
 
     await sb('prepropostas_envios', {
