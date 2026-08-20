@@ -199,6 +199,14 @@
   .obs-hist-data { font-size: 10.5px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px; }
   .obs-hist-vazio { display: block; padding: 12px; font-size: 12px; color: #94a3b8; text-align: center; }
 
+  .msg-bloco { position: relative; background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; padding: 12px 14px; margin-bottom: 10px; }
+  .msg-bloco-num { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .msg-bloco-txt { font-size: 13px; line-height: 1.55; color: var(--text); white-space: pre-wrap; margin-bottom: 9px; }
+  .btn-msg { background: #F0FDF4; border: 1.5px solid #86efac; border-radius: 7px; padding: 5px 11px; font-size: 12px; cursor: pointer; font-family: inherit; color: #166534; font-weight: 600; white-space: nowrap; }
+  .btn-msg:hover { background: #dcfce7; border-color: #16a34a; }
+
+  .preview-box code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
   /* ══ TOOLTIP ══ */
   .ajuda { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; min-width: 15px; border-radius: 50%; background: rgba(100,116,139,.2); color: #64748b; font-size: 10px; font-weight: 700; cursor: help; margin-left: 5px; vertical-align: middle; flex-shrink: 0; line-height: 1; }
   .ajuda:hover { background: var(--azul); color: #fff; }
@@ -286,6 +294,18 @@
     <div class="modal-info" id="mr-sub"></div>
     <input type="text" class="mr-busca" id="mr-busca" placeholder="🔍 Buscar..." oninput="filtrarGridResp(this.value)"/>
     <div class="mr-grid" id="mr-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL MENSAGEM -->
+<div class="modal-overlay" id="modal-msg" style="display:none" onclick="fecharModalMsg(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:600px">
+    <div class="modal-title">💬 Mensagem para o cliente</div>
+    <div class="modal-info" id="modal-msg-info"></div>
+    <div id="modal-msg-corpo"></div>
+    <div class="modal-acoes">
+      <button class="btn btn-secondary" onclick="fecharModalMsg()">Fechar</button>
+    </div>
   </div>
 </div>
 
@@ -383,19 +403,49 @@ const COLUNAS_UTEIS = [
   { campo: 'responsavel',             label: 'Responsável',            nomes: ['RESPONSÁVEL','RESPONSAVEL'], obrigatoria: false },
   { campo: 'municipio',               label: 'Município',              nomes: ['MUNICIPIO PROPONENTE','MUNICÍPIO PROPONENTE','MUNICIPIO','MUNICÍPIO'], obrigatoria: false },
   { campo: 'motivo_devolucao',        label: 'Motivo Devolução',       nomes: ['MOTIVO DEVOLUÇÃO','MOTIVO DEVOLUCAO','MOTIVO_DEVOLUCAO'], obrigatoria: false },
+  { campo: 'primeiro_nome',           label: 'Nome do Cliente',        nomes: ['NOME_CLIENTE','NOME CLIENTE','NOME'], obrigatoria: false },
+  { campo: 'data_cadastro',           label: 'Data de Cadastro',       nomes: ['DATA_CADASTRO','DATA CADASTRO'], obrigatoria: false },
 ]
+// Lida apenas no navegador, para eliminar duplicidades. Nunca é gravada.
+const COL_CNPJ = ['CPF_CNPJ','CPF/CNPJ','CNPJ','CPF']
 // Estas nunca entram no sistema
-const COLUNAS_DESCARTADAS = ['CPF_CNPJ','NOME_CLIENTE','TIPO_PESSOA','CPF_USUARIO','EMAIL','DATA_ENVIO','DATA_CADASTRO','SITUACAO','TIPO GARANTIA','MOTIVO RECUSA']
+const COLUNAS_DESCARTADAS = ['CPF_CNPJ','TIPO_PESSOA','CPF_USUARIO','EMAIL','DATA_ENVIO','SITUACAO','TIPO GARANTIA','MOTIVO RECUSA']
 
 function acharCol(row, nomes) {
   const chaves = Object.keys(row)
-  const norm = s => s.toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[_\s]+/g,' ')
+  // Tira acentos, pontuação e espaços extras, para casar mesmo com
+  // variações do cabeçalho entre exportações do FomentoNet.
+  const norm = s => s.toString().trim().toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^A-Z0-9]+/g,' ').trim()
+  const chavesNorm = chaves.map(k => ({ original: k, n: norm(k) }))
+  // 1ª tentativa: igual
   for (const n of nomes) {
     const alvo = norm(n)
-    const achou = chaves.find(k => norm(k) === alvo)
-    if (achou !== undefined) return row[achou]
+    const achou = chavesNorm.find(k => k.n === alvo)
+    if (achou) return row[achou.original]
+  }
+  // 2ª tentativa: um contém o outro (ex: "CODIGO PRE PROPOSTA FGF")
+  for (const n of nomes) {
+    const alvo = norm(n)
+    const achou = chavesNorm.find(k => k.n.includes(alvo) || alvo.includes(k.n))
+    if (achou) return row[achou.original]
   }
   return undefined
+}
+
+// Guarda só o primeiro nome, nunca o nome completo
+function primeiroNome(txt) {
+  const t = (txt || '').toString().trim()
+  if (!t) return ''
+  const p = t.split(/\s+/)[0]
+  return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+}
+
+// Pré-propostas do Fomento Giro Fácil não entram neste sistema
+function ehGiroFacil(linha) {
+  const t = (linha || '').toString().toUpperCase()
+  return t.includes('GIRO') || t.includes('FUNGETUR')
 }
 
 function parseValor(v) {
@@ -448,6 +498,22 @@ function diasDesde(v) {
   return Math.floor((h - d) / 86400000)
 }
 
+// Transforma o erro técnico do Supabase em uma orientação clara
+function explicarErro(e) {
+  const m = (e && e.message) ? e.message : String(e)
+  if (/PGRST204|Could not find the .* column|column .* does not exist/i.test(m)) {
+    const col = (m.match(/'([a-z_]+)' column/) || m.match(/column "?([a-z_]+)"?/) || [])[1] || ''
+    return `O banco está desatualizado${col ? ` (falta a coluna <b>${col}</b>)` : ''}. Rode o SQL de atualização no Supabase e tente de novo.`
+  }
+  if (/relation .* does not exist|PGRST205/i.test(m)) {
+    return 'As tabelas ainda não existem no Supabase. Rode o <b>criar_tabelas_prepropostas.sql</b> primeiro.'
+  }
+  if (/401|JWT|apikey/i.test(m))  return 'A chave de acesso do Supabase foi recusada. Verifique a anon key no sistema.'
+  if (/duplicate key|23505/i.test(m)) return 'Há códigos repetidos que o banco recusou. Verifique a planilha.'
+  if (/Failed to fetch|NetworkError/i.test(m)) return 'Sem conexão com o Supabase. Verifique a internet e tente de novo.'
+  return m
+}
+
 function showToast(msg, tipo) {
   const t = document.getElementById('toast')
   t.textContent = msg
@@ -469,6 +535,9 @@ let filtroLinha = '', filtroMunicipio = '', filtroMotivo = ''
 let filtroValorMin = '', filtroValorMax = ''
 let filtroComIni = '', filtroComFim = ''
 let filtroSemComentario = false
+let filtroTipoMsg = ''
+let filtroCadIni = '', filtroCadFim = ''
+let filtroDiasMin = '', filtroDiasMax = ''
 let filtroSemResponsavel = false
 
 let sortCol = 'codigo', sortDir = 1
@@ -598,14 +667,19 @@ async function lerArquivoPre(file) {
 
     if (faltando.length) {
       drop.classList.remove('ok')
-      prev.innerHTML = `<div class="preview-box erro">❌ Faltam colunas obrigatórias: <b>${faltando.join(', ')}</b></div>`
+      prev.innerHTML = `<div class="preview-box erro">
+        <div class="preview-linha">❌ Não encontrei a coluna obrigatória: <b>${faltando.join(', ')}</b></div>
+        <div class="preview-linha" style="margin-top:8px">A planilha tem <b>${rows.length}</b> linhas e estas ${cabecalhos.length} colunas:</div>
+        <div class="preview-cols" style="color:#7f1d1d">${cabecalhos.map(h => `<code>${h}</code>`).join(' · ')}</div>
+        <div class="preview-linha" style="margin-top:8px;font-size:11.5px">Se o código estiver com outro nome, me avise para eu incluir.</div>
+      </div>`
       status.className = 'alert alert-danger'
-      status.textContent = 'Corrija a planilha e envie novamente.'
+      status.textContent = 'Não foi possível identificar a coluna do código.'
       return
     }
 
-    // Transforma, descartando tudo que é dado pessoal
-    linhasPre = rows.map(row => ({
+    // Transforma. O CNPJ é lido só para deduplicar e não entra em linhasPre.
+    let brutas = rows.map(row => ({
       codigo:                 String(acharCol(row, COLUNAS_UTEIS[0].nomes) ?? '').trim(),
       linha_credito:          String(acharCol(row, COLUNAS_UTEIS[1].nomes) ?? '').trim(),
       valor:                  parseValor(acharCol(row, COLUNAS_UTEIS[2].nomes)),
@@ -613,13 +687,36 @@ async function lerArquivoPre(file) {
       responsavel:            normalizarResponsavel(acharCol(row, COLUNAS_UTEIS[4].nomes)),
       municipio:              String(acharCol(row, COLUNAS_UTEIS[5].nomes) ?? '').trim(),
       motivo_devolucao:       String(acharCol(row, COLUNAS_UTEIS[6].nomes) ?? '').trim(),
+      primeiro_nome:          primeiroNome(acharCol(row, COLUNAS_UTEIS[7].nomes)),
+      data_cadastro:          isoData(parseData(acharCol(row, COLUNAS_UTEIS[8].nomes))),
+      _cnpj:                  String(acharCol(row, COL_CNPJ) ?? '').replace(/\D/g,''),
     })).filter(r => r.codigo)
 
-    // Código repetido dentro da própria planilha: fica o último
-    const mapa = {}
-    linhasPre.forEach(r => { mapa[r.codigo] = r })
-    const repetidos = linhasPre.length - Object.keys(mapa).length
-    linhasPre = Object.values(mapa)
+    // 1) Fora as do Fomento Giro Fácil — esse produto tem sistema próprio
+    const antesGiro = brutas.length
+    brutas = brutas.filter(r => !ehGiroFacil(r.linha_credito))
+    const removidasGiro = antesGiro - brutas.length
+
+    // 2) Código repetido na própria planilha: fica o último
+    const porCodigo = {}
+    brutas.forEach(r => { porCodigo[r.codigo] = r })
+    const repetidos = brutas.length - Object.keys(porCodigo).length
+    brutas = Object.values(porCodigo)
+
+    // 3) Mesmo CNPJ em mais de uma pré-proposta: fica a de MAIOR código
+    const porCnpj = {}
+    const semCnpj = []
+    brutas.forEach(r => {
+      if (!r._cnpj) { semCnpj.push(r); return }
+      const atual = porCnpj[r._cnpj]
+      if (!atual || Number(r.codigo) > Number(atual.codigo)) porCnpj[r._cnpj] = r
+    })
+    const antesCnpj = brutas.length
+    brutas = [...Object.values(porCnpj), ...semCnpj]
+    const dupCnpj = antesCnpj - brutas.length
+
+    // Descarta o CNPJ: daqui pra frente ele não existe mais
+    linhasPre = brutas.map(({ _cnpj, ...resto }) => resto)
 
     const pessoais = COLUNAS_DESCARTADAS.filter(d =>
       cabecalhos.some(k => k.toString().trim().toUpperCase().replace(/[_\s]+/g,' ') === d.replace(/[_\s]+/g,' ')))
@@ -630,7 +727,9 @@ async function lerArquivoPre(file) {
     drop.classList.add('ok')
     prev.innerHTML = `<div class="preview-box">
       <div class="preview-linha">✅ <b>${linhasPre.length}</b> pré-propostas · <b>${cabecalhos.length}</b> colunas na planilha</div>
+      ${removidasGiro ? `<div class="preview-linha">🚫 ${removidasGiro} do Fomento Giro Fácil removida${removidasGiro>1?'s':''} — esse produto tem sistema próprio</div>` : ''}
       ${repetidos ? `<div class="preview-linha">🔁 ${repetidos} código${repetidos>1?'s':''} repetido${repetidos>1?'s':''} — mantida a última ocorrência</div>` : ''}
+      ${dupCnpj ? `<div class="preview-linha">👥 ${dupCnpj} duplicada${dupCnpj>1?'s':''} pelo mesmo CNPJ — mantida a de maior código</div>` : ''}
       <div class="preview-linha">🔒 ${pessoais.length ? `Dados pessoais na planilha (<b>${pessoais.join(', ')}</b>) — descartados na leitura, não vão para o banco` : 'Nenhum dado pessoal encontrado'}</div>
       ${semResp ? `<div class="preview-linha">👤 ${semResp} sem responsável reconhecido — poderá atribuir na tela</div>` : ''}
       <div class="preview-cols">Colunas aproveitadas: <b>${encontradas.join('</b> · <b>')}</b></div>
@@ -641,9 +740,14 @@ async function lerArquivoPre(file) {
     btn.disabled = false
   } catch(err) {
     drop.classList.remove('ok')
-    prev.innerHTML = `<div class="preview-box erro">❌ ${err.message}</div>`
+    prev.innerHTML = `<div class="preview-box erro">
+      <div class="preview-linha">❌ Não consegui ler o arquivo.</div>
+      <div class="preview-linha" style="margin-top:6px;font-size:11.5px">Detalhe: ${err.message}</div>
+      <div class="preview-linha" style="margin-top:6px;font-size:11.5px">Formatos aceitos: .xlsx, .xls e .csv. Se o arquivo estiver aberto no Excel, feche e tente de novo.</div>
+    </div>`
     status.className = 'alert alert-danger'
     status.textContent = 'Não foi possível ler a planilha.'
+    console.error('[Pré-Propostas] erro ao ler:', err)
   }
 }
 
@@ -665,6 +769,12 @@ async function enviarPlanilha() {
     const mapa = {}
     ;(existentes || []).forEach(p => { mapa[String(p.codigo).trim()] = p })
 
+    // O banco pode estar sem as colunas novas (SQL de atualização não rodado).
+    // Em vez de falhar, grava sem elas e avisa.
+    let temCamposMensagem = true
+    try { await sb('prepropostas?select=primeiro_nome,data_cadastro&limit=1') }
+    catch(e) { temCamposMensagem = false }
+
     setProg(25, 'Preparando os dados...')
     let novas = 0, atualizadas = 0
     const registros = linhasPre.map(r => {
@@ -679,6 +789,7 @@ async function enviarPlanilha() {
         responsavel: r.responsavel !== 'N/A' ? r.responsavel : (ja ? ja.responsavel : 'N/A'),
         municipio: r.municipio,
         motivo_devolucao: r.motivo_devolucao,
+        ...(temCamposMensagem ? { primeiro_nome: r.primeiro_nome, data_cadastro: r.data_cadastro } : {}),
         // COMENTÁRIO É FIXO: preserva sempre o que já existe
         observacao: ja ? (ja.observacao || '') : '',
         atualizado_em: new Date().toISOString(),
@@ -711,12 +822,18 @@ async function enviarPlanilha() {
         <div class="stat-card"><div class="stat-label">Novas</div><div class="stat-value" style="color:var(--success)">${novas}</div></div>
         <div class="stat-card"><div class="stat-label">Já existiam</div><div class="stat-value" style="color:var(--warn)">${atualizadas}</div><div class="stat-sub">dados atualizados, comentário mantido</div></div>
       </div>
+      ${!temCamposMensagem ? `<div class="alert alert-warning" style="margin-top:14px">
+        ⚠️ O banco ainda não tem os campos de <b>nome do cliente</b> e <b>data de cadastro</b>.
+        Gravei o resto normalmente, mas as mensagens vão sair com lacunas.
+        Rode o <b>adicionar_campos_mensagem.sql</b> no Supabase e reenvie a planilha.
+      </div>` : ''}
       <button class="btn btn-primary" style="margin-top:14px" onclick="setTab('lista')">Ver Pré-Propostas →</button>`
     showToast(`✓ ${registros.length} pré-propostas processadas`)
   } catch(e) {
     status.className = 'alert alert-danger'
-    status.textContent = '❌ Erro: ' + e.message
-    showToast('Erro: ' + e.message, 'error')
+    status.innerHTML = '❌ ' + explicarErro(e)
+    showToast('Não foi possível processar', 'error')
+    console.error('[Pré-Propostas] erro ao gravar:', e)
   }
   btn.disabled = false
 }
@@ -731,7 +848,7 @@ async function carregarPre() {
     todasPre = await sbAll('prepropostas?select=*&order=codigo.asc') || []
     renderLista()
   } catch(e) {
-    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ Erro ao carregar: ${e.message}</div></div>`
+    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ ${explicarErro(e)}</div></div>`
   }
 }
 
@@ -798,11 +915,36 @@ function renderLista() {
           </div>
         </div>
         <div class="fa-campo">
+          <label>💬 Tipo de Mensagem</label>
+          <select class="fa-input" id="f-tipomsg" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+            ${Object.entries(NOME_TIPO).map(([k,v]) => `<option value="${k}" ${filtroTipoMsg===k?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fa-campo">
           <label>📅 Última Comunicação</label>
           <div class="fa-inputs">
             <input type="date" class="fa-input" id="f-cini" value="${filtroComIni}" onchange="aplicarFiltros()"/>
             <span class="fa-sep">até</span>
             <input type="date" class="fa-input" id="f-cfim" value="${filtroComFim}" onchange="aplicarFiltros()"/>
+          </div>
+        </div>
+      </div>
+      <div class="fa-grid" style="margin-top:14px">
+        <div class="fa-campo">
+          <label>📅 Data de Cadastro</label>
+          <div class="fa-inputs">
+            <input type="date" class="fa-input" id="f-cadini" value="${filtroCadIni}" onchange="aplicarFiltros()"/>
+            <span class="fa-sep">até</span>
+            <input type="date" class="fa-input" id="f-cadfim" value="${filtroCadFim}" onchange="aplicarFiltros()"/>
+          </div>
+        </div>
+        <div class="fa-campo">
+          <label>⏱️ Dias sem contato</label>
+          <div class="fa-inputs">
+            <input type="number" class="fa-input" id="f-dmin" placeholder="Mínimo" value="${filtroDiasMin}" oninput="aplicarFiltros()"/>
+            <span class="fa-sep">até</span>
+            <input type="number" class="fa-input" id="f-dmax" placeholder="Máximo" value="${filtroDiasMax}" oninput="aplicarFiltros()"/>
           </div>
         </div>
       </div>
@@ -840,6 +982,11 @@ function aplicarFiltros() {
   filtroValorMax  = document.getElementById('f-vmax')?.value || ''
   filtroComIni    = document.getElementById('f-cini')?.value || ''
   filtroComFim    = document.getElementById('f-cfim')?.value || ''
+  filtroTipoMsg   = document.getElementById('f-tipomsg')?.value || ''
+  filtroCadIni    = document.getElementById('f-cadini')?.value || ''
+  filtroCadFim    = document.getElementById('f-cadfim')?.value || ''
+  filtroDiasMin   = document.getElementById('f-dmin')?.value || ''
+  filtroDiasMax   = document.getElementById('f-dmax')?.value || ''
   pagAtual = 1
   renderTabela(); renderIndicadores(); atualizarBadge()
 }
@@ -847,6 +994,7 @@ function aplicarFiltros() {
 function limparFiltros() {
   filtroLinha = filtroMunicipio = filtroMotivo = ''
   filtroValorMin = filtroValorMax = filtroComIni = filtroComFim = ''
+  filtroTipoMsg = filtroCadIni = filtroCadFim = filtroDiasMin = filtroDiasMax = ''
   filtroSemComentario = filtroSemResponsavel = false
   filtroBusca = ''
   pagAtual = 1
@@ -856,7 +1004,8 @@ function limparFiltros() {
 
 function contarFiltros() {
   let n = 0
-  ;[filtroLinha,filtroMunicipio,filtroMotivo,filtroValorMin,filtroValorMax,filtroComIni,filtroComFim].forEach(f => { if (f) n++ })
+  ;[filtroLinha,filtroMunicipio,filtroMotivo,filtroValorMin,filtroValorMax,filtroComIni,filtroComFim,
+    filtroTipoMsg,filtroCadIni,filtroCadFim,filtroDiasMin,filtroDiasMax].forEach(f => { if (f) n++ })
   if (filtroSemComentario) n++
   if (filtroSemResponsavel) n++
   return n
@@ -879,6 +1028,11 @@ function getFiltradas() {
   if (filtroValorMax !== '' && !isNaN(+filtroValorMax)) rows = rows.filter(p => (p.valor||0) <= +filtroValorMax)
   if (filtroComIni)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] >= filtroComIni)
   if (filtroComFim)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] <= filtroComFim)
+  if (filtroTipoMsg) rows = rows.filter(p => tipoMensagem(p.motivo_devolucao) === filtroTipoMsg)
+  if (filtroCadIni)  rows = rows.filter(p => p.data_cadastro && String(p.data_cadastro).split('T')[0] >= filtroCadIni)
+  if (filtroCadFim)  rows = rows.filter(p => p.data_cadastro && String(p.data_cadastro).split('T')[0] <= filtroCadFim)
+  if (filtroDiasMin !== '' && !isNaN(+filtroDiasMin)) rows = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= +filtroDiasMin })
+  if (filtroDiasMax !== '' && !isNaN(+filtroDiasMax)) rows = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d <= +filtroDiasMax })
   if (filtroSemComentario)  rows = rows.filter(p => !(p.observacao||'').trim())
   if (filtroSemResponsavel) rows = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A')
 
@@ -953,6 +1107,7 @@ function renderTabela() {
     { key:'data_ultima_comunicacao', label:'Última Comunicação', ajuda:'Data do ultimo contato com o cliente. O numero em vermelho indica ha quantos dias.' },
     { key:'motivo_devolucao',        label:'Motivo Devolução' },
     { key:'observacao',              label:'Comentário' },
+    { key:'_msg',                    label:'Mensagem' },
   ]
 
   const ths = cols.map(c => {
@@ -990,6 +1145,7 @@ function renderTabela() {
             : '<span style="color:#cbd5e1">—</span>'}</td>
       <td>${motivo ? `<span class="badge-motivo" title="${motivo.replace(/"/g,'&quot;')}">${motivo}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
       <td><button class="obs-btn ${obs?'':'vazio'}" onclick="abrirModalObs('${p.codigo}')" title="${obs.replace(/"/g,'&quot;')}">${obs ? `<span class="obs-dot"></span>${obs}` : '+ Comentar'}</button></td>
+      <td><button class="btn-msg" onclick="abrirModalMsg('${p.codigo}')" title="Abrir a mensagem pronta para copiar">💬 Mensagem</button></td>
     </tr>`
   }).join('')
 
@@ -1194,6 +1350,180 @@ async function salvarObservacao() {
   }
 }
 
+
+// ============================================================
+// MENSAGENS DE CONTATO (WhatsApp)
+// Cada motivo de devolução tem um texto próprio, montado com o
+// nome do cliente, o analista responsável e a data de cadastro.
+// ============================================================
+
+function saudacaoAgora(d = new Date()) {
+  const h = d.getHours()
+  if (h < 12) return 'Bom dia'
+  if (h < 18) return 'Boa tarde'
+  return 'Boa noite'
+}
+
+// Palpite de gênero pelo primeiro nome, para a mensagem de pendência
+// documental. É um palpite: o usuário pode corrigir na tela.
+const NOMES_M = ['LUCAS','MATIAS','JONAS','ELIAS','TOBIAS','SILAS','NICOLAS','DOUGLAS','ANDRE','ANDRÉ','TOMAS','THOMAS','DIAS','FARIAS','JOSUE','JOSUÉ','ISAIAS','ISAÍAS','MESSIAS','ATILA','ÁTILA','NICOLA','LUCA','SASHA','JOSE','JOSÉ']
+const NOMES_F = ['BEATRIZ','INES','INÊS','ISIS','ÍSIS','RAQUEL','ESTER','ESTHER','ELIZABETH','ELISABETE','CARMEM','CARMEN','MIRIAM','ROSE','GRACE','JAQUELINE','JACQUELINE','SOLANGE','DENISE','ELOISE','HELOISE','LOURDES','MERCEDES','PIEDADE','CARIDADE','NOEMI','NOEMY','RUTE','RUTH','JUDITE','EDITE','EDITH','CLARICE','BERENICE','EUNICE','JANICE','THAIS','THAÍS','TAIS','LAIS','LAÍS','IRIS','ÍRIS','DORIS','DÓRIS','LILIAN','LILIANE','SIMONE','IVONE','IVETE','YVONE']
+
+function palpiteGenero(nome) {
+  const n = (nome || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  if (!n) return 'indefinido'
+  const semAcento = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  if (NOMES_F.some(x => semAcento(x) === n)) return 'F'
+  if (NOMES_M.some(x => semAcento(x) === n)) return 'M'
+  if (/AS$/.test(n)) return 'M'          // Lucas, Matias, Jonas
+  if (/(A|INE|ICE)$/.test(n)) return 'F' // Maria, Ana, Josiane
+  return 'M'
+}
+
+// Identifica qual texto usar a partir do motivo da devolução
+function tipoMensagem(motivo) {
+  const m = (motivo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  if (m.includes('certidao') || m.includes('cadin'))    return 'certidao'
+  if (m.includes('documen'))                            return 'documental'
+  if (m.includes('preenchimento') || m.includes('incomplet')) return 'incompleto'
+  if (m.includes('informac'))                           return 'informacoes'
+  return 'informacoes'   // texto mais genérico, serve de padrão
+}
+
+const NOME_TIPO = {
+  documental:  'Pendência documental',
+  informacoes: 'Pendência de informações',
+  incompleto:  'Preenchimento incompleto',
+  certidao:    'Pendência em certidão (CADIN)',
+}
+
+// Monta a mensagem já dividida em blocos, para enviar um de cada vez
+function montarMensagem(p, generoForcado) {
+  const nome    = (p.primeiro_nome || '').trim() || '[nome do cliente]'
+  const analista= normalizarResponsavel(p.responsavel)
+  const colab   = analista === 'N/A' ? '[seu nome]' : analista.charAt(0) + analista.slice(1).toLowerCase()
+  const data    = p.data_cadastro ? formatData(p.data_cadastro) : '[data de cadastro]'
+  const saud    = saudacaoAgora()
+  const tipo    = tipoMensagem(p.motivo_devolucao)
+  const genero  = generoForcado || palpiteGenero(p.primeiro_nome)
+
+  const taxasMulher = 'Estamos com algumas taxas exclusivas para mulheres e bem abaixo do mercado. Pegar esse dinheiro e investir já rende mais que a parcela.'
+  const taxasGeral  = 'Estamos com algumas taxas exclusivas e bem abaixo do mercado. Pegar esse dinheiro e investir já rende mais que a parcela.'
+  const taxasHein   = 'Estamos com algumas taxas exclusivas e bem abaixo do mercado. Pegar esse dinheiro e investir já rende mais que a parcela hein....'
+
+  if (tipo === 'documental') {
+    return { tipo, genero, blocos: [
+      `${saud}, ${nome}, meu nome é ${colab} e sou analista de crédito da Fomento Paraná.`,
+      `Você cadastrou uma proposta conosco no dia ${data}, porém percebi que faltou alguns documentos, isso mesmo?`,
+      genero === 'F' ? taxasMulher : taxasGeral,
+      'Vamos voltar com a sua análise?',
+    ]}
+  }
+  if (tipo === 'informacoes') {
+    return { tipo, genero, blocos: [
+      `${saud}, ${nome}, meu nome é ${colab} e sou analista de crédito da Fomento Paraná.`,
+      `Você cadastrou uma proposta conosco no dia ${data}, porém percebi que faltaram algumas informações na sua proposta.`,
+      taxasHein,
+      'Vamos voltar com a sua análise? O que acha?',
+    ]}
+  }
+  if (tipo === 'incompleto') {
+    return { tipo, genero, blocos: [
+      `${saud}, ${nome}, meu nome é ${colab} e sou analista de crédito da Fomento Paraná.`,
+      `Você iniciou uma proposta conosco no dia ${data}, porém percebi que faltaram algumas informações na sua proposta.`,
+      taxasHein,
+      'Vamos voltar com a sua análise? O que acha?',
+    ]}
+  }
+  return { tipo, genero, blocos: [
+    `${saud}, ${nome}, meu nome é ${colab} e sou analista de crédito da Fomento Paraná.`,
+    `Você iniciou uma proposta conosco no dia ${data}, porém percebi que você estava com uma pendência no CADIN.`,
+    taxasHein,
+    'Você conseguiu resolver sua pendência? Caso sinalize que sim, já te mando o link para você iniciar o cadastro de outra proposta',
+  ]}
+}
+
+// ── Modal da mensagem ──
+let msgCodigo = null, msgGenero = null
+
+function abrirModalMsg(codigo) {
+  msgCodigo = String(codigo)
+  msgGenero = null
+  renderModalMsg()
+  document.getElementById('modal-msg').style.display = 'flex'
+}
+
+function renderModalMsg() {
+  const p = todasPre.find(x => String(x.codigo) === msgCodigo)
+  if (!p) return
+  const m = montarMensagem(p, msgGenero)
+  const ehDocumental = m.tipo === 'documental'
+
+  document.getElementById('modal-msg-info').textContent =
+    `Pré-proposta ${p.codigo} · ${NOME_TIPO[m.tipo]}`
+
+  document.getElementById('modal-msg-corpo').innerHTML = `
+    <div class="alert alert-warning" style="margin-bottom:14px;font-size:12px">
+      💡 <b>Envie um bloco por vez</b>, com alguns segundos entre eles.
+      Mandar tudo de uma vez faz o cliente achar que é robô — em blocos, a conversa fica natural.
+    </div>
+
+    ${ehDocumental ? `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px">
+      <span style="color:var(--text-muted)">Tratamento:</span>
+      <button class="btn btn-secondary btn-sm" style="${m.genero==='F'?'background:var(--azul);color:#fff':''}" onclick="msgGenero='F';renderModalMsg()">♀ Mulher</button>
+      <button class="btn btn-secondary btn-sm" style="${m.genero!=='F'?'background:var(--azul);color:#fff':''}" onclick="msgGenero='M';renderModalMsg()">♂ Homem</button>
+      <span style="color:#94a3b8;font-size:11px">palpite pelo nome — corrija se precisar</span>
+    </div>` : ''}
+
+    ${m.blocos.map((b, i) => `
+      <div class="msg-bloco">
+        <div class="msg-bloco-num">Bloco ${i+1}</div>
+        <div class="msg-bloco-txt" id="bloco-${i}">${b}</div>
+        <button class="btn btn-secondary btn-sm" onclick="copiarBloco(${i}, this)">📋 Copiar</button>
+      </div>`).join('')}
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="copiarTudo(this)">
+      📋 Copiar mensagem inteira
+    </button>`
+}
+
+function copiarTexto(txt) {
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(txt)
+  const ta = document.createElement('textarea')
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'
+  document.body.appendChild(ta); ta.select()
+  try { document.execCommand('copy') } catch(e) {}
+  document.body.removeChild(ta)
+  return Promise.resolve()
+}
+
+function copiarBloco(i, btn) {
+  const el = document.getElementById('bloco-' + i)
+  copiarTexto(el.textContent).then(() => {
+    const antes = btn.textContent
+    btn.textContent = '✓ Copiado'
+    setTimeout(() => { btn.textContent = antes }, 1400)
+  })
+}
+
+function copiarTudo(btn) {
+  const p = todasPre.find(x => String(x.codigo) === msgCodigo)
+  if (!p) return
+  const m = montarMensagem(p, msgGenero)
+  copiarTexto(m.blocos.join('\n\n')).then(() => {
+    const antes = btn.textContent
+    btn.textContent = '✓ Mensagem copiada'
+    setTimeout(() => { btn.textContent = antes }, 1600)
+  })
+}
+
+function fecharModalMsg(e) {
+  if (e && e.target !== document.getElementById('modal-msg')) return
+  document.getElementById('modal-msg').style.display = 'none'
+  msgCodigo = null; msgGenero = null
+}
+
 // ============================================================
 // ABA: PAINEL
 // ============================================================
@@ -1369,6 +1699,9 @@ function exportarExcel() {
     'Última Comunicação': formatData(p.data_ultima_comunicacao),
     'Dias sem contato': diasDesde(p.data_ultima_comunicacao) ?? '',
     'Motivo Devolução': p.motivo_devolucao || '',
+    'Tipo de Mensagem': NOME_TIPO[tipoMensagem(p.motivo_devolucao)] || '',
+    'Cliente': p.primeiro_nome || '',
+    'Data de Cadastro': formatData(p.data_cadastro),
     'Comentário': p.observacao || '',
   }))
   const wb = XLSX.utils.book_new()
