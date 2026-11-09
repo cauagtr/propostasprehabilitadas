@@ -21,18 +21,17 @@
   body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
 
   /* ══ CABEÇALHO ══ */
-  header { background: linear-gradient(135deg, var(--azul), var(--azul-medio)); color: #fff; padding: 14px 28px; display: flex; align-items: center; gap: 14px; }
-  .logo-box { width: 42px; height: 42px; background: var(--dourado); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--azul); font-size: 15px; }
-  .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
-  .logo-text p { font-size: 11.5px; opacity: .8; }
-  .header-badge { margin-left: auto; background: var(--dourado); color: var(--azul); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
-
-  nav { background: var(--azul-medio); padding: 0 28px; display: flex; gap: 4px; }
-  .nav-tab { padding: 12px 20px; color: rgba(255,255,255,.75); font-size: 13.5px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all .15s; }
-  .nav-tab:hover { color: #fff; }
-  .nav-tab.active { color: var(--dourado); border-bottom-color: var(--dourado); font-weight: 600; }
-
-  main { max-width: 1500px; margin: 0 auto; padding: 22px 28px 60px; }
+  header { background: var(--azul); color: #fff; padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 64px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
+  .header-brasao { background: var(--dourado); color: var(--azul); font-weight: 700; font-size: 13px; width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0.5px; }
+  .header-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.2); }
+  .header-info h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .header-info span { font-size: 12px; color: rgba(255,255,255,0.65); }
+  .header-badge { margin-left: auto; background: var(--dourado); color: var(--azul); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+  nav { background: var(--azul-medio); display: flex; gap: 2px; padding: 0 20px; }
+  .tab-btn { background: transparent; border: none; color: rgba(255,255,255,0.65); padding: 14px 20px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all .15s; }
+  .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .tab-btn.active { color: var(--dourado); border-bottom-color: var(--dourado); }
+  main { max-width: 1900px; margin: 0 auto; padding: 24px 20px 60px; }
 
   /* ══ CARDS ══ */
   .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
@@ -241,24 +240,55 @@
     .barra-nome { flex-basis: 120px; }
     .barra-valor { display: none; }
   }
+  .ms-wrap { position: relative; }
+  .ms-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-family: inherit; font-size: 13px; cursor: pointer; color: #1f2937; }
+  .ms-btn.parcial { border-color: #2563EB; background: #EFF6FF; color: #1E40AF; font-weight: 600; }
+  .ms-painel { position: absolute; z-index: 300; top: calc(100% + 4px); left: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 8px; min-width: 260px; max-height: 360px; overflow-y: auto; }
+  .ms-acoes { display: flex; gap: 6px; padding: 2px 2px 8px; border-bottom: 1px solid #eef0f3; margin-bottom: 6px; }
+  .ms-acoes button { flex: 1; font-size: 11.5px; padding: 4px 6px; border: 1px solid #e5e7eb; border-radius: 6px; background: #f8fafc; cursor: pointer; font-family: inherit; }
+  .ms-opcao { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 6px; font-size: 12.5px; cursor: pointer; user-select: none; }
+  .ms-opcao:hover { background: #f1f5f9; }
+  .ms-opcao input { width: 15px; height: 15px; cursor: pointer; }
+  .lista-etapa-wrap { max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .lista-etapa { width: 100%; border-collapse: collapse; }
+  .lista-etapa thead th { position: sticky; top: 0; background: #f8fafc; padding: 9px 12px; text-align: left; font-size: 10.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid var(--border); }
+  .lista-etapa tbody td { padding: 8px 12px; border-bottom: 1px solid #eef1f4; font-size: 12.5px; }
+  .lista-etapa tbody tr:hover { background: #f8fafc; }
+  .le-cod { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .le-razao { color: #334155; }
+  .le-resp { font-size: 11.5px; font-weight: 600; color: #64748b; }
+  .le-valor { font-family: 'IBM Plex Mono', monospace; text-align: right; font-size: 11.5px; }
+  .grafico-wrap { width: 100%; overflow: hidden; }
+  .grafico-svg { width: 100%; height: auto; display: block; }
+  .g-grade { stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 3 4; }
+  .g-eixo-y { font-size: 10px; fill: #94a3b8; text-anchor: end; font-family: IBM Plex Sans, sans-serif; }
+  .g-eixo-x { font-size: 10px; fill: #94a3b8; text-anchor: middle; font-family: IBM Plex Sans, sans-serif; }
+  .g-valor { font-size: 10.5px; fill: #475569; text-anchor: middle; font-weight: 700; font-family: IBM Plex Sans, sans-serif; }
+  .evo-resumo { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; }
+  .evo-resumo-item { flex: 1; min-width: 130px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .evo-resumo-num { font-size: 20px; font-weight: 700; color: var(--azul); }
+  .evo-resumo-lbl { font-size: 11px; color: var(--text-muted); }
+  .painel-data { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); }
+  .painel-data .fa-input { width: 150px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-box">PR</div>
-  <div class="logo-text">
+  <div class="header-brasao">PR</div>
+  <div class="header-divider"></div>
+  <div class="header-info">
     <h1>FOMENTO PARANÁ — Pré-Propostas</h1>
-    <p>Acompanhamento de pré-propostas com preenchimento incompleto</p>
+    <span>Preenchimento incompleto · acompanhamento e contato com o cliente</span>
   </div>
-  <span class="header-badge">PP v1.0</span>
+  <span class="header-badge">PP v2.0</span>
 </header>
 
 <nav>
-  <div class="nav-tab active" id="tab-enviar"  onclick="setTab('enviar')">📤 Enviar Planilha</div>
-  <div class="nav-tab"        id="tab-lista"   onclick="setTab('lista')">📋 Pré-Propostas</div>
-  <div class="nav-tab"        id="tab-painel"  onclick="setTab('painel')">📊 Painel</div>
-  <div class="nav-tab"        id="tab-envios"  onclick="setTab('envios')">🕒 Envios</div>
+  <button class="tab-btn active" id="tab-enviar" onclick="setTab('enviar')">⚙ Processar</button>
+  <button class="tab-btn" id="tab-lista" onclick="setTab('lista')">📋 Pré-Propostas</button>
+  <button class="tab-btn" id="tab-painel" onclick="setTab('painel')">📊 Painel Gerencial</button>
+  <button class="tab-btn" id="tab-envios" onclick="setTab('envios')">🕒 Histórico</button>
 </nav>
 
 <main id="main-content">
@@ -298,6 +328,15 @@
 </div>
 
 <!-- MODAL MENSAGEM -->
+<div class="modal-overlay" id="modal-semana" style="display:none" onclick="this.style.display='none'">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:860px;width:95%">
+    <div class="modal-title" id="ms-titulo"></div>
+    <div class="modal-info" id="ms-sub"></div>
+    <div class="lista-etapa-wrap" id="ms-lista"></div>
+    <div class="modal-acoes"><button class="btn btn-secondary" onclick="document.getElementById('modal-semana').style.display='none'">Fechar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-msg" style="display:none" onclick="fecharModalMsg(event)">
   <div class="modal-box" onclick="event.stopPropagation()" style="max-width:600px">
     <div class="modal-title">💬 Mensagem para o cliente</div>
@@ -363,6 +402,31 @@ const COLABORADORES = {
 }
 const COLAB_LIST = ['ANNA','CAUÃ','CONRADO','JULIANO','LETICIA','MARCOS','PEDRO','RAIANE']
 
+// ══ EQUIPE CENTRAL ══
+// A equipe é a mesma do Microcrédito e vem do cadastro do site do Administrador
+// (tabela config_colaboradores, no Supabase do Microcrédito). Se não der para ler,
+// vale a lista fixa acima. Quem está inativo não aparece em lugar nenhum.
+const CONFIG_URL = 'https://byvqsjhslfdblmiymksf.supabase.co'
+const CONFIG_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5dnFzamhzbGZkYmxtaXlta3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTI1OTIsImV4cCI6MjA5MTg4ODU5Mn0.DcwRiV_CePS4KmOG9I7SmqMl83pLQthNvNYQClLdL_4'
+async function carregarEquipeCentral() {
+  try {
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 5000)
+    const res = await fetch(`${CONFIG_URL}/rest/v1/config_colaboradores?select=nome,cor,ativo,ordem&sistema=eq.micro&order=ordem.asc`,
+      { headers: { apikey: CONFIG_KEY, Authorization: `Bearer ${CONFIG_KEY}` }, signal: ctrl.signal })
+    clearTimeout(t)
+    if (!res.ok) throw new Error('HTTP ' + res.status)
+    const cols = await res.json()
+    if (!cols || !cols.length) return
+    cols.forEach(c => { COLABORADORES[c.nome] = c.cor })
+    COLAB_LIST.splice(0, COLAB_LIST.length, ...cols.filter(c => c.ativo).map(c => c.nome))
+  } catch(e) { console.warn('Equipe central indisponível — usando a lista fixa.', e) }
+}
+// Responsável que não é da equipe ativa aparece como N/A (o banco não é alterado aqui)
+function ocultarInativos(lista) {
+  ;(lista || []).forEach(p => { if (!COLAB_LIST.includes(normalizarResponsavel(p.responsavel))) p.responsavel = 'N/A' })
+  return lista
+}
+
 // A planilha pode trazer o nome completo ou com acentuação diferente.
 // Esta função reduz ao nome curto que o sistema usa.
 function normalizarResponsavel(txt) {
@@ -376,7 +440,7 @@ function normalizarResponsavel(txt) {
     // casa se o nome curto aparece como palavra inteira no texto
     if (new RegExp(`(^|[^A-Z])${curto}([^A-Z]|$)`).test(alvo)) return nome
   }
-  return t   // mantém o original se não reconhecer
+  return 'N/A'   // não é ninguém da equipe ativa → sem responsável
 }
 
 function getCorColab(nome) { return COLABORADORES[normalizarResponsavel(nome)] || '#94A3B8' }
@@ -570,13 +634,16 @@ let filtroCadIni = '', filtroCadFim = ''
 let filtroDiasMin = '', filtroDiasMax = ''
 let filtroSemResponsavel = false
 
-let sortCol = 'codigo', sortDir = 1
+let sortCol = 'data_cadastro', sortDir = -1   // mais recentes primeiro
 let pagAtual = 1, pagTamanho = 50
 let selecionadas = new Set()
 
 // ============================================================
 // NAVEGAÇÃO
 // ============================================================
+// Só aplica a data quando o ano estiver completo (senão o campo trava ao digitar)
+function dataPronta(v) { if (!v) return true; const ano = +String(v).split('-')[0]; return ano >= 2000 && ano <= 2100 }
+
 function setTab(tab) {
   ['enviar','lista','painel','envios'].forEach(t => {
     document.getElementById('view-' + t).style.display = t === tab ? '' : 'none'
@@ -614,6 +681,11 @@ function renderEnviar() {
       <div class="progress-label" id="prog-label"></div>
       <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
     </div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px;cursor:pointer">
+      <input type="checkbox" id="chk-remover" checked style="margin-top:3px">
+      <span><b>Deixar no sistema só as pré-propostas desta planilha.</b> As que não vierem nela (já resolvidas ou antigas) saem do sistema.
+      <span style="color:var(--text-muted)">Desmarque só se estiver enviando uma planilha parcial.</span></span>
+    </label>
     <button class="btn btn-primary" id="btn-enviar" disabled onclick="enviarPlanilha()" style="margin-top:14px">
       ⚡ Processar Planilha
     </button>
@@ -662,7 +734,21 @@ function lerPlanilha(file) {
     const r = new FileReader()
     r.onload = ev => {
       try {
-        const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array', cellDates: true, codepage: 65001 })
+        const bytes = new Uint8Array(ev.target.result)
+        const ehCsv = /\.(csv|txt)$/i.test(file.name || '')
+        let wb
+        if (ehCsv) {
+          // O CSV do FomentoNet vem em ISO-8859-1 (Windows). Tenta UTF-8 primeiro;
+          // se não for UTF-8 válido, lê como Windows-1252 — assim "São José" não vira "S縺o Jos".
+          let texto
+          try { texto = new TextDecoder('utf-8', { fatal: true }).decode(bytes) }
+          catch(e) { texto = new TextDecoder('windows-1252').decode(bytes) }
+          if (texto.charCodeAt(0) === 0xFEFF) texto = texto.slice(1)
+          // raw: true → o texto chega como está (datas "dd/mm/aaaa" e valores "1.000,00")
+          wb = XLSX.read(texto, { type: 'string', raw: true })
+        } else {
+          wb = XLSX.read(bytes, { type: 'array', cellDates: true })
+        }
         const ws = wb.Sheets[wb.SheetNames[0]]
         resolve(XLSX.utils.sheet_to_json(ws, { defval: '', raw: false }))
       } catch(err) { reject(err) }
@@ -823,7 +909,8 @@ async function enviarPlanilha() {
         valor: Number.isFinite(r.valor) ? r.valor : 0,
         data_ultima_comunicacao: r.data_ultima_comunicacao,
         // Responsável: a planilha manda, mas se vier vazia mantém quem já estava
-        responsavel: r.responsavel !== 'N/A' ? r.responsavel : (ja ? ja.responsavel : 'N/A'),
+        responsavel: r.responsavel !== 'N/A' ? r.responsavel
+          : (ja && COLAB_LIST.includes(normalizarResponsavel(ja.responsavel)) ? normalizarResponsavel(ja.responsavel) : 'N/A'),
         municipio: limparTexto(r.municipio),
         motivo_devolucao: limparTexto(r.motivo_devolucao),
         ...(temCamposMensagem ? { primeiro_nome: r.primeiro_nome, data_cadastro: r.data_cadastro } : {}),
@@ -866,6 +953,21 @@ async function enviarPlanilha() {
       body: { arquivo: arquivoPre.name, total_linhas: registros.length, novas, atualizadas }
     })
 
+    // Planilha completa: o que não veio nela saiu da lista de pendentes → sai do sistema
+    let removidas = 0
+    const chk = document.getElementById('chk-remover')
+    if (chk && chk.checked) {
+      const naPlanilha = new Set(registros.map(r => String(r.codigo).trim()))
+      const sair = (existentes || []).map(p => String(p.codigo).trim()).filter(c => !naPlanilha.has(c))
+      if (sair.length && !confirm(`${sair.length} pré-proposta(s) que estão no sistema NÃO vieram nesta planilha (já foram resolvidas ou são antigas).\n\nElas vão sair do sistema, junto com os comentários.\n\nOK = tirar · Cancelar = manter todas`)) sair.length = 0
+      for (let i = 0; i < sair.length; i += 150) {
+        const lote = sair.slice(i, i + 150)
+        setProg(97, `Tirando ${sair.length} pré-propostas que não estão mais na planilha...`)
+        await sb(`prepropostas?codigo=in.(${lote.map(c => `"${c}"`).join(',')})`, { method: 'DELETE', prefer: 'return=minimal' })
+        removidas += lote.length
+      }
+    }
+
     setProg(100, 'Concluído!')
     status.className = 'alert alert-success'
     status.innerHTML = '✅ Planilha processada.'
@@ -875,6 +977,7 @@ async function enviarPlanilha() {
         <div class="stat-card"><div class="stat-label">Total na planilha</div><div class="stat-value">${registros.length}</div></div>
         <div class="stat-card"><div class="stat-label">Novas</div><div class="stat-value" style="color:var(--success)">${novas}</div></div>
         <div class="stat-card"><div class="stat-label">Já existiam</div><div class="stat-value" style="color:var(--warn)">${atualizadas}</div><div class="stat-sub">dados atualizados, comentário mantido</div></div>
+        <div class="stat-card"><div class="stat-label">Saíram do sistema</div><div class="stat-value" style="color:var(--danger)">${removidas}</div><div class="stat-sub">não estavam mais na planilha</div></div>
       </div>
       ${!temCamposMensagem ? `<div class="alert alert-warning" style="margin-top:14px">
         ⚠️ O banco ainda não tem os campos de <b>nome do cliente</b> e <b>data de cadastro</b>.
@@ -899,7 +1002,7 @@ async function carregarPre() {
   const el = document.getElementById('view-lista')
   if (!todasPre.length) el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>`
   try {
-    todasPre = await sbAll('prepropostas?select=*&order=codigo.asc') || []
+    todasPre = ocultarInativos(await sbAll('prepropostas?select=*&order=codigo.asc') || [])
     renderLista()
   } catch(e) {
     el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ ${explicarErro(e)}</div></div>`
@@ -914,7 +1017,8 @@ function opcoesUnicas(campo) {
 
 function renderLista() {
   const el = document.getElementById('view-lista')
-  const colabs = [...new Set(todasPre.map(p => normalizarResponsavel(p.responsavel)))].filter(c => c !== 'N/A').sort()
+  // Equipe ativa sempre aparece, mesmo quem ainda não tem pré-proposta
+  const colabs = [...COLAB_LIST].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
   el.innerHTML = `
   <div class="card">
@@ -976,29 +1080,11 @@ function renderLista() {
           </select>
         </div>
         <div class="fa-campo">
-          <label>📅 Última Comunicação</label>
-          <div class="fa-inputs">
-            <input type="date" class="fa-input" id="f-cini" value="${filtroComIni}" onchange="aplicarFiltros()"/>
-            <span class="fa-sep">até</span>
-            <input type="date" class="fa-input" id="f-cfim" value="${filtroComFim}" onchange="aplicarFiltros()"/>
-          </div>
-        </div>
-      </div>
-      <div class="fa-grid" style="margin-top:14px">
-        <div class="fa-campo">
           <label>📅 Data de Cadastro</label>
           <div class="fa-inputs">
-            <input type="date" class="fa-input" id="f-cadini" value="${filtroCadIni}" onchange="aplicarFiltros()"/>
+            <input type="date" class="fa-input" id="f-cadini" value="${filtroCadIni}" max="9999-12-31" onchange="if(dataPronta(this.value)) aplicarFiltros()"/>
             <span class="fa-sep">até</span>
-            <input type="date" class="fa-input" id="f-cadfim" value="${filtroCadFim}" onchange="aplicarFiltros()"/>
-          </div>
-        </div>
-        <div class="fa-campo">
-          <label>⏱️ Dias sem contato</label>
-          <div class="fa-inputs">
-            <input type="number" class="fa-input" id="f-dmin" placeholder="Mínimo" value="${filtroDiasMin}" oninput="aplicarFiltros()"/>
-            <span class="fa-sep">até</span>
-            <input type="number" class="fa-input" id="f-dmax" placeholder="Máximo" value="${filtroDiasMax}" oninput="aplicarFiltros()"/>
+            <input type="date" class="fa-input" id="f-cadfim" value="${filtroCadFim}" max="9999-12-31" onchange="if(dataPronta(this.value)) aplicarFiltros()"/>
           </div>
         </div>
       </div>
@@ -1080,13 +1166,9 @@ function getFiltradas() {
   if (filtroMotivo)    rows = rows.filter(p => (p.motivo_devolucao||'').trim() === filtroMotivo)
   if (filtroValorMin !== '' && !isNaN(+filtroValorMin)) rows = rows.filter(p => (p.valor||0) >= +filtroValorMin)
   if (filtroValorMax !== '' && !isNaN(+filtroValorMax)) rows = rows.filter(p => (p.valor||0) <= +filtroValorMax)
-  if (filtroComIni)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] >= filtroComIni)
-  if (filtroComFim)    rows = rows.filter(p => p.data_ultima_comunicacao && String(p.data_ultima_comunicacao).split('T')[0] <= filtroComFim)
   if (filtroTipoMsg) rows = rows.filter(p => tipoMensagem(p.motivo_devolucao) === filtroTipoMsg)
   if (filtroCadIni)  rows = rows.filter(p => p.data_cadastro && String(p.data_cadastro).split('T')[0] >= filtroCadIni)
   if (filtroCadFim)  rows = rows.filter(p => p.data_cadastro && String(p.data_cadastro).split('T')[0] <= filtroCadFim)
-  if (filtroDiasMin !== '' && !isNaN(+filtroDiasMin)) rows = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= +filtroDiasMin })
-  if (filtroDiasMax !== '' && !isNaN(+filtroDiasMax)) rows = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d <= +filtroDiasMax })
   if (filtroSemComentario)  rows = rows.filter(p => !(p.observacao||'').trim())
   if (filtroSemResponsavel) rows = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A')
 
@@ -1124,15 +1206,15 @@ function renderIndicadores() {
   const valor = rows.reduce((s,p) => s + (p.valor||0), 0)
   const semResp = rows.filter(p => normalizarResponsavel(p.responsavel) === 'N/A').length
   const semObs = rows.filter(p => !(p.observacao||'').trim()).length
-  const paradas = rows.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= DIAS_ALERTA }).length
-  const diasArr = rows.map(p => diasDesde(p.data_ultima_comunicacao)).filter(d => d !== null)
+  const paradas = rows.filter(p => { const d = diasDesde(p.data_cadastro); return d !== null && d >= DIAS_ALERTA }).length
+  const diasArr = rows.map(p => diasDesde(p.data_cadastro)).filter(d => d !== null)
   const media = diasArr.length ? Math.round(diasArr.reduce((s,d)=>s+d,0)/diasArr.length) : 0
 
   el.innerHTML = `<div class="dash-grid" style="margin-bottom:16px">
     <div class="dash-card accent-azul"><div class="dash-label">Pré-Propostas</div><div class="dash-value">${total}</div></div>
     <div class="dash-card accent-dourado"><div class="dash-label">Valor Total</div><div class="dash-value" style="font-size:18px">${formatValor(valor)}</div></div>
-    <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Sem contato há ${DIAS_ALERTA}+ dias<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Pre-propostas cuja ultima comunicacao com o cliente foi ha ${DIAS_ALERTA} dias ou mais.">?</span></div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div></div>
-    <div class="dash-card accent-cinza"><div class="dash-label">Média sem contato</div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
+    <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Cadastradas há ${DIAS_ALERTA}+ dias<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Pre-propostas com Data de Cadastro ha ${DIAS_ALERTA} dias ou mais e que ainda estao incompletas.">?</span></div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div></div>
+    <div class="dash-card accent-cinza"><div class="dash-label">Idade média<span class="ajuda ajuda-baixo" data-ajuda="Media de dias desde a Data de Cadastro = soma dos dias de cada pre-proposta ÷ quantidade.">?</span></div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
     <div class="dash-card accent-roxo"><div class="dash-label">Sem responsável</div><div class="dash-value">${semResp}</div></div>
     <div class="dash-card accent-verde"><div class="dash-label">Sem comentário</div><div class="dash-value">${semObs}</div><div class="dash-sub">de ${total}</div></div>
   </div>`
@@ -1158,6 +1240,7 @@ function renderTabela() {
     { key:'linha_credito',           label:'Linha' },
     { key:'municipio',               label:'Município' },
     { key:'valor',                   label:'Valor', align:'right' },
+    { key:'data_cadastro',           label:'Cadastro', ajuda:'Data em que a pre-proposta foi cadastrada. E a data usada nos filtros e no painel.' },
     { key:'data_ultima_comunicacao', label:'Última Comunicação', ajuda:'Data do ultimo contato com o cliente. O numero em vermelho indica ha quantos dias.' },
     { key:'motivo_devolucao',        label:'Motivo Devolução' },
     { key:'observacao',              label:'Comentário' },
@@ -1194,6 +1277,7 @@ function renderTabela() {
       <td>${p.linha_credito ? `<span class="badge" style="background:#EFF6FF;color:#1E40AF;border-color:#bfdbfe">${p.linha_credito}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
       <td style="font-size:12.5px">${p.municipio || '—'}</td>
       <td class="td-valor">${formatValor(p.valor)}</td>
+      <td style="font-size:12.5px;white-space:nowrap">${p.data_cadastro ? formatData(p.data_cadastro) : '<span style="color:#cbd5e1">—</span>'}</td>
       <td>${p.data_ultima_comunicacao
             ? `<span class="alerta-dias">${alerta?'⚠️ ':''}${formatData(p.data_ultima_comunicacao)} ${alerta?`<span class="dias-badge">${dias} dias</span>`:`<span class="dias-ok">(${dias}d)</span>`}</span>`
             : '<span style="color:#cbd5e1">—</span>'}</td>
@@ -1581,31 +1665,89 @@ function fecharModalMsg(e) {
 // ============================================================
 // ABA: PAINEL
 // ============================================================
-let painelColab = '', painelLinha = '', painelMunicipio = '', painelMotivo = ''
+// Filtros do Painel (iguais ao Microcrédito): seleção múltipla, tudo vem marcado,
+// guardamos o que foi DESMARCADO. Valem para a página inteira do painel.
+const painelExclui = { colab: new Set(), linha: new Set(), motivo: new Set(), municipio: new Set() }
+let painelOpcoesAtuais = { colab: [], linha: [], motivo: [], municipio: [] }
+let painelDropAberto = ''
+let painelCadIni = '', painelCadFim = ''   // Data de Cadastro
+let evoSemanas = []
+const chaveColabPP = p => normalizarResponsavel(p.responsavel)
+const chaveTxt = campo => p => (p[campo] || '').trim() || '(não informado)'
+
+function msFiltro(id, icone, rotulo, opcoes) {
+  const exc = painelExclui[id]
+  const marcadas = opcoes.filter(o => !exc.has(o)).length
+  const parcial = marcadas < opcoes.length
+  const txt = !parcial ? `Todos (${opcoes.length})` : `${marcadas} de ${opcoes.length}`
+  return `<div class="ms-wrap" onclick="event.stopPropagation()">
+    <button class="ms-btn${parcial ? ' parcial' : ''}" onclick="painelDropAberto = painelDropAberto==='${id}' ? '' : '${id}'; renderPainel()">${icone} ${rotulo}: ${txt} ▾</button>
+    ${painelDropAberto === id ? `<div class="ms-painel">
+      <div class="ms-acoes">
+        <button onclick="painelExclui.${id}.clear(); renderPainel()">Marcar todos</button>
+        <button onclick="painelExclui.${id} = new Set(painelOpcoesAtuais.${id}); renderPainel()">Desmarcar todos</button>
+      </div>
+      ${opcoes.map((o, i) => `<label class="ms-opcao"><input type="checkbox" ${exc.has(o) ? '' : 'checked'}
+          onchange="alternarFiltroPainel('${id}', ${i})"> ${esc(o)}</label>`).join('')}
+    </div>` : ''}
+  </div>`
+}
+function alternarFiltroPainel(id, i) {
+  const v = painelOpcoesAtuais[id][i]
+  if (painelExclui[id].has(v)) painelExclui[id].delete(v); else painelExclui[id].add(v)
+  renderPainel()
+}
+document.addEventListener('click', () => { if (painelDropAberto) { painelDropAberto = ''; renderPainel() } })
+
+// Filtros que valem para tudo (com ou sem a data)
+function filtrarPainel(lista, comData = true) {
+  return lista.filter(p => {
+    if (painelExclui.colab.has(chaveColabPP(p))) return false
+    if (painelExclui.linha.has(chaveTxt('linha_credito')(p))) return false
+    if (painelExclui.motivo.has(chaveTxt('motivo_devolucao')(p))) return false
+    if (painelExclui.municipio.has(chaveTxt('municipio')(p))) return false
+    if (comData && (painelCadIni || painelCadFim)) {
+      const d = p.data_cadastro ? String(p.data_cadastro).split('T')[0] : ''
+      if (!d) return false
+      if (painelCadIni && d < painelCadIni) return false
+      if (painelCadFim && d > painelCadFim) return false
+    }
+    return true
+  })
+}
+const isoDia = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+function inicioSemana(d) { const x = new Date(d); x.setHours(12,0,0,0); const dw = (x.getDay() + 6) % 7; x.setDate(x.getDate() - dw); return x }
+function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
 
 async function renderPainel() {
   const el = document.getElementById('view-painel')
+  if (!el) return
   if (!todasPre.length) {
     el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>`
-    try { todasPre = await sbAll('prepropostas?select=*') || [] } catch(e) {}
+    try { todasPre = ocultarInativos(await sbAll('prepropostas?select=*') || []) } catch(e) {}
   }
   if (!todasPre.length) {
-    el.innerHTML = `<div class="card"><div class="painel-vazio">📭 Nenhuma pré-proposta ainda.<br>Envie a planilha na aba "Enviar Planilha".</div></div>`
+    el.innerHTML = `<div class="card"><div class="painel-vazio">📭 Nenhuma pré-proposta ainda.<br>Envie a planilha na aba "Processar".</div></div>`
     return
   }
 
-  let props = [...todasPre]
-  if (painelColab)     props = props.filter(p => normalizarResponsavel(p.responsavel) === painelColab)
-  if (painelLinha)     props = props.filter(p => (p.linha_credito||'').trim() === painelLinha)
-  if (painelMunicipio) props = props.filter(p => (p.municipio||'').trim() === painelMunicipio)
-  if (painelMotivo)    props = props.filter(p => (p.motivo_devolucao||'').trim() === painelMotivo)
+  const ordena = arr => [...new Set(arr)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  painelOpcoesAtuais = {
+    // Equipe ativa sempre aparece, mesmo quem ainda não tem pré-proposta
+    colab: [...ordena(COLAB_LIST), 'N/A'],
+    linha: ordena(todasPre.map(chaveTxt('linha_credito'))),
+    motivo: ordena(todasPre.map(chaveTxt('motivo_devolucao'))),
+    municipio: ordena(todasPre.map(chaveTxt('municipio'))),
+  }
+  const props = filtrarPainel(todasPre)
+  const filtrosAtivos = Object.values(painelExclui).some(x => x.size) || painelCadIni || painelCadFim
 
   const total = props.length || 1
   const valorTotal = props.reduce((s,p) => s + (p.valor||0), 0)
   const semResp = props.filter(p => normalizarResponsavel(p.responsavel) === 'N/A').length
   const semObs = props.filter(p => !(p.observacao||'').trim()).length
-  const paradas = props.filter(p => { const d = diasDesde(p.data_ultima_comunicacao); return d !== null && d >= DIAS_ALERTA }).length
-  const diasArr = props.map(p => diasDesde(p.data_ultima_comunicacao)).filter(d => d !== null)
+  const paradas = props.filter(p => { const d = diasDesde(p.data_cadastro); return d !== null && d >= DIAS_ALERTA }).length
+  const diasArr = props.map(p => diasDesde(p.data_cadastro)).filter(d => d !== null)
   const media = diasArr.length ? Math.round(diasArr.reduce((s,d)=>s+d,0)/diasArr.length) : 0
 
   const agrupar = (campo, normaliza) => {
@@ -1638,7 +1780,6 @@ async function renderPainel() {
     </div>`
   }
 
-  const colabs = [...new Set(todasPre.map(p => normalizarResponsavel(p.responsavel)))].filter(c => c !== 'N/A').sort()
   const cargas = agrupar('responsavel', v => normalizarResponsavel(v))
 
   el.innerHTML = `
@@ -1651,29 +1792,22 @@ async function renderPainel() {
       </span>
     </div>
     <div class="painel-filtros">
-      <select class="fa-input" onchange="painelColab=this.value;renderPainel()">
-        <option value="">👤 Todos os responsáveis</option>
-        ${colabs.map(c=>`<option value="${c}" ${painelColab===c?'selected':''}>${c}</option>`).join('')}
-      </select>
-      <select class="fa-input" onchange="painelLinha=this.value;renderPainel()">
-        <option value="">🏷️ Todas as linhas</option>
-        ${opcoesUnicas('linha_credito').map(v=>`<option value="${v}" ${painelLinha===v?'selected':''}>${v}</option>`).join('')}
-      </select>
-      <select class="fa-input" onchange="painelMunicipio=this.value;renderPainel()">
-        <option value="">📍 Todos os municípios</option>
-        ${opcoesUnicas('municipio').map(v=>`<option value="${v}" ${painelMunicipio===v?'selected':''}>${v}</option>`).join('')}
-      </select>
-      <select class="fa-input" onchange="painelMotivo=this.value;renderPainel()">
-        <option value="">↩️ Todos os motivos</option>
-        ${opcoesUnicas('motivo_devolucao').map(v=>`<option value="${v}" ${painelMotivo===v?'selected':''}>${v.length>40?v.substring(0,40)+'…':v}</option>`).join('')}
-      </select>
-      ${(painelColab||painelLinha||painelMunicipio||painelMotivo) ? `<button class="btn btn-secondary btn-sm" onclick="painelColab='';painelLinha='';painelMunicipio='';painelMotivo='';renderPainel()">✕ Limpar</button>` : ''}
+      ${msFiltro('colab', '👤', 'Responsáveis', painelOpcoesAtuais.colab)}
+      ${msFiltro('linha', '🏷️', 'Linhas', painelOpcoesAtuais.linha)}
+      ${msFiltro('motivo', '↩️', 'Motivos', painelOpcoesAtuais.motivo)}
+      ${msFiltro('municipio', '📍', 'Municípios', painelOpcoesAtuais.municipio)}
+      <div class="painel-data">📅 Cadastro de
+        <input type="date" class="fa-input" value="${painelCadIni}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelCadIni=this.value;renderPainel()}">
+        até
+        <input type="date" class="fa-input" value="${painelCadFim}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelCadFim=this.value;renderPainel()}">
+      </div>
+      ${filtrosAtivos ? `<button class="btn btn-secondary btn-sm" onclick="Object.values(painelExclui).forEach(x=>x.clear());painelCadIni='';painelCadFim='';renderPainel()">✕ Limpar filtros</button>` : ''}
     </div>
     <div class="dash-grid">
       <div class="dash-card accent-azul"><div class="dash-label">Total</div><div class="dash-value">${props.length}</div></div>
       <div class="dash-card accent-dourado"><div class="dash-label">Valor Total</div><div class="dash-value" style="font-size:18px">${formatValor(valorTotal)}</div></div>
-      <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Sem contato ${DIAS_ALERTA}+ dias</div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div><div class="dash-sub">${((paradas/total)*100).toFixed(1)}% do total</div></div>
-      <div class="dash-card accent-cinza"><div class="dash-label">Média sem contato</div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
+      <div class="dash-card accent-laranja"><div class="dash-label">⚠️ Cadastradas há ${DIAS_ALERTA}+ dias<span class="ajuda ajuda-baixo" data-ajuda="Pre-propostas com Data de Cadastro ha ${DIAS_ALERTA} dias ou mais e que ainda estao incompletas. % = estas ÷ total filtrado.">?</span></div><div class="dash-value" style="color:${paradas?'#dc2626':'#16a34a'}">${paradas}</div><div class="dash-sub">${((paradas/total)*100).toFixed(1)}% do total</div></div>
+      <div class="dash-card accent-cinza"><div class="dash-label">Idade média<span class="ajuda ajuda-baixo" data-ajuda="Media de dias desde a Data de Cadastro = soma dos dias de cada pre-proposta ÷ quantidade.">?</span></div><div class="dash-value">${media}<span style="font-size:13px;font-weight:600;color:#9ca3af"> dias</span></div></div>
       <div class="dash-card accent-roxo"><div class="dash-label">Sem responsável</div><div class="dash-value">${semResp}</div></div>
       <div class="dash-card accent-verde"><div class="dash-label">Sem comentário</div><div class="dash-value">${semObs}</div></div>
     </div>
@@ -1686,25 +1820,146 @@ async function renderPainel() {
       ${cargas.filter(([n]) => n !== 'N/A').map(([nome, d]) => {
         const bg = getCorColab(nome), fg = getTextColor(bg)
         const par = props.filter(p => normalizarResponsavel(p.responsavel) === nome &&
-                                      (() => { const x = diasDesde(p.data_ultima_comunicacao); return x !== null && x >= DIAS_ALERTA })()).length
+                                      (() => { const x = diasDesde(p.data_cadastro); return x !== null && x >= DIAS_ALERTA })()).length
         return `<div class="carga-card" style="--cor-colab:${bg}">
           <span class="resp-avatar" style="background:${bg};color:${fg}">${getIniciais(nome)}</span>
           <div>
             <div class="carga-nome">${nome}</div>
             <div class="carga-nums"><span><b>${d.qtd}</b> pré-propostas</span></div>
             <div class="carga-valor">${formatValor(d.valor)}</div>
-            ${par ? `<div style="font-size:11px;color:#dc2626;font-weight:600;margin-top:3px">⚠️ ${par} sem contato</div>` : ''}
+            ${par ? `<div style="font-size:11px;color:#dc2626;font-weight:600;margin-top:3px">⚠️ ${par} há ${DIAS_ALERTA}+ dias</div>` : ''}
           </div>
         </div>`
       }).join('')}
     </div>
   </div>
 
+  ${renderEvolucao(filtrarPainel(todasPre, false))}
+
   ${secaoBarras('🏷️ Por Linha de Crédito', 'Distribuição das pré-propostas por produto', agrupar('linha_credito'), '#2563EB')}
   ${secaoBarras('↩️ Por Motivo da Devolução', 'O que mais faz a pré-proposta voltar', agrupar('motivo_devolucao'), '#EA580C')}
   ${secaoBarras('📍 Por Município', 'Os 15 municípios com mais pré-propostas', agrupar('municipio').slice(0,15), '#059669')}
   `
 }
+
+// Gráfico semanal pela Data de Cadastro (usa os filtros do painel, menos o de data:
+// o gráfico já tem a própria janela de semanas)
+function renderEvolucao(props) {
+  const N = 5
+  const segAtual = inicioSemana(new Date())
+  const semanas = []
+  for (let i = N; i >= 0; i--) {             // N completas + a atual
+    const ini = new Date(segAtual); ini.setDate(ini.getDate() - 7*i)
+    const fim = new Date(ini); fim.setDate(fim.getDate() + 6)
+    semanas.push({
+      ini: isoDia(ini), fim: isoDia(fim), atual: i === 0,
+      label: `${ini.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} a ${fim.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`,
+      props: [], count: 0, valor: 0
+    })
+  }
+  props.forEach(p => {
+    if (!p.data_cadastro) return
+    const dt = String(p.data_cadastro).split('T')[0]
+    const s = semanas.find(w => dt >= w.ini && dt <= w.fim)
+    if (s) { s.props.push(p); s.count++; s.valor += (p.valor||0) }
+  })
+  evoSemanas = semanas
+
+  const completas = semanas.filter(w => !w.atual)
+  const atual = semanas[semanas.length - 1]
+  // Regressão linear (mínimos quadrados) nas semanas completas: y = a + b·x
+  const n = completas.length
+  const xs = completas.map((_, i) => i), ys = completas.map(w => w.count)
+  const mx = xs.reduce((s,v)=>s+v,0)/n, my = ys.reduce((s,v)=>s+v,0)/n
+  const sxx = xs.reduce((s,x)=>s+(x-mx)**2,0)
+  const b = sxx ? xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0)/sxx : 0
+  const a = my - b*mx
+  const tendencia = i => Math.max(0, a + b*i)
+  const previsao = Math.round(tendencia(n))            // semana atual
+  const media = Math.round(my)
+  const ultima = completas[n-1] ? completas[n-1].count : 0, penultima = completas[n-2] ? completas[n-2].count : 0
+  const variacao = ultima - penultima
+  const varPct = penultima ? Math.round((variacao/penultima)*100) : null
+
+  // Desenho
+  const L = 44, R = 16, T = 26, B = 46, W = 900, H = 280
+  const larg = W - L - R, alt = H - T - B
+  const maxV = Math.max(1, ...semanas.map(w => w.count), previsao)
+  const slot = larg / semanas.length
+  const bw = Math.min(90, slot * 0.58)
+  const cx = i => L + slot*i + slot/2
+  const py = v => T + alt - (v / maxV) * alt
+  const marcas = [...new Set([0, .25, .5, .75, 1].map(f => Math.round(maxV*f)))].map(v => ({ v, y: py(v) }))
+  const tx1 = cx(0), tx2 = cx(n)                       // linha vai até a semana atual
+  const corTend = b >= 0 ? '#16a34a' : '#dc2626'
+
+  return `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">📈 Pré-Propostas Cadastradas por Semana<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Pre-propostas incompletas cadastradas em cada semana (segunda a domingo), pela Data de Cadastro. Mostra as ultimas 5 semanas completas e a semana atual. A linha tracejada e a tendencia por regressao linear, e o tracejado na semana atual e a previsao. Clique numa barra para ver as propostas da semana.">?</span></div>
+      <div class="painel-secao-sub">Últimas ${N} semanas completas + semana atual · clique na barra para ver as propostas</div>
+      <div class="evo-resumo">
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${ultima}</span><span class="evo-resumo-lbl">semana passada</span></div>
+        <div class="evo-resumo-item">
+          <span class="evo-resumo-num" style="color:${variacao > 0 ? '#16a34a' : variacao < 0 ? '#dc2626' : '#64748b'}">
+            ${variacao > 0 ? '▲' : variacao < 0 ? '▼' : '='} ${Math.abs(variacao)}${varPct !== null ? ` (${varPct > 0 ? '+' : ''}${varPct}%)` : ''}
+          </span>
+          <span class="evo-resumo-lbl">vs. semana anterior</span>
+        </div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${media}</span><span class="evo-resumo-lbl">média por semana (${N} sem.)</span></div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num" style="color:${corTend}">${b >= 0 ? '↗' : '↘'} ${b >= 0 ? '+' : ''}${b.toFixed(1)}</span><span class="evo-resumo-lbl">tendência (por semana)</span></div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${atual.count} <span style="font-size:14px;color:#94a3b8">/ ${previsao}</span></span><span class="evo-resumo-lbl">semana atual / previsão</span></div>
+      </div>
+      <div class="grafico-wrap">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="grafico-svg">
+          ${marcas.map(m => `
+            <line x1="${L}" y1="${m.y.toFixed(1)}" x2="${W-R}" y2="${m.y.toFixed(1)}" class="g-grade"/>
+            <text x="${L-8}" y="${(m.y+4).toFixed(1)}" class="g-eixo-y">${m.v}</text>`).join('')}
+          ${semanas.map((w, i) => {
+            const x = cx(i) - bw/2, y = py(w.count), h = T + alt - y
+            const cor = w.atual ? '#93C5FD' : '#2563EB'
+            return `<g class="g-barra" style="cursor:pointer" onclick="verPropostasDaSemana(${i})">
+              <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,0).toFixed(1)}" rx="5" fill="${cor}"/>
+              <text x="${cx(i).toFixed(1)}" y="${(y-7).toFixed(1)}" class="g-valor" style="font-weight:700">${w.count}</text>
+              <text x="${cx(i).toFixed(1)}" y="${H-26}" class="g-eixo-x">${w.label}</text>
+              <text x="${cx(i).toFixed(1)}" y="${H-12}" class="g-eixo-x" style="font-weight:600">${w.atual ? 'semana atual' : formatValor(w.valor)}</text>
+              <title>${w.label}: ${w.count} proposta${w.count!==1?'s':''} · ${formatValor(w.valor)}</title>
+            </g>`
+          }).join('')}
+          ${(() => { const x = cx(n) - bw/2, y = py(previsao), h = T + alt - y
+            return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,0).toFixed(1)}" rx="5" fill="none" stroke="${corTend}" stroke-width="1.5" stroke-dasharray="5 4"><title>Previsão para a semana atual: ${previsao}</title></rect>` })()}
+          <line x1="${tx1.toFixed(1)}" y1="${py(tendencia(0)).toFixed(1)}" x2="${tx2.toFixed(1)}" y2="${py(tendencia(n)).toFixed(1)}" stroke="${corTend}" stroke-width="2" stroke-dasharray="7 5"/>
+        </svg>
+      </div>
+      <div style="font-size:11.5px;color:#64748b;margin-top:6px">
+        <span style="display:inline-block;width:10px;height:10px;background:#2563EB;border-radius:2px;vertical-align:middle"></span> semana completa ·
+        <span style="display:inline-block;width:10px;height:10px;background:#93C5FD;border-radius:2px;vertical-align:middle"></span> semana atual ·
+        <span style="color:${corTend}">- - -</span> tendência e previsão (regressão linear)
+      </div>
+    </div>`
+}
+
+function verPropostasDaSemana(i) {
+  const w = evoSemanas[i]
+  if (!w) return
+  const lista = [...w.props].sort((a,b) => String(a.data_cadastro).localeCompare(String(b.data_cadastro)) || String(a.codigo).localeCompare(String(b.codigo)))
+  const diaSemana = v => { const d = new Date(String(v).split('T')[0] + 'T12:00:00'); return d.toLocaleDateString('pt-BR',{weekday:'short', day:'2-digit', month:'2-digit'}) }
+  document.getElementById('ms-titulo').textContent = `Semana de ${w.label}${w.atual ? ' (atual)' : ''}`
+  document.getElementById('ms-sub').textContent = `${w.count} proposta${w.count!==1?'s':''} cadastrada${w.count!==1?'s':''} · ${formatValor(w.valor)}`
+  document.getElementById('ms-lista').innerHTML = lista.length
+    ? `<table class="lista-etapa">
+        <thead><tr><th>Dia</th><th>Responsável</th><th>Código</th><th>Cliente</th><th>Linha</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>${lista.map(p => `<tr>
+          <td style="white-space:nowrap">${diaSemana(p.data_cadastro)}</td>
+          <td class="le-resp">${p.responsavel || 'N/A'}</td>
+          <td class="le-cod">${p.codigo}</td>
+          <td class="le-razao">${esc(p.primeiro_nome) || '—'}</td><td class="le-razao">${esc(p.linha_credito) || '—'}</td>
+          <td class="le-valor">${formatValor(p.valor)}</td>
+        </tr>`).join('')}</tbody>
+      </table>`
+    : '<div class="painel-empty">Nenhuma proposta cadastrada nesta semana.</div>'
+  document.getElementById('modal-semana').style.display = 'flex'
+}
+
 
 // ============================================================
 // ABA: ENVIOS
@@ -1825,7 +2080,8 @@ document.addEventListener('keydown', e => {
   if (mo && mo.style.display === 'flex') return fecharModalObs()
 })
 
-renderEnviar()
+// Lê a equipe central antes de desenhar a tela
+;(async () => { await carregarEquipeCentral(); renderEnviar() })()
 </script>
 </body>
 </html>
